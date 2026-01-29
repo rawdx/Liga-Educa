@@ -1,0 +1,79 @@
+{
+  "minis-grupo-1": [
+    {"name": "CD San Roque Balompié", "played": 0, "points": 0, "image": "assets/images/teams/cdsanroquebalompie.jpg"},
+    {"name": "Real Betis Academy \"Bellerín\"", "played": 0, "points": 0, "image": "assets/images/teams/betis.jpg"},
+    {"name": "CD Dani Triana Ar-Rabad", "played": 0, "points": 0, "image": "assets/images/teams/cddanitrianaarrabad.jpg"},
+    {"name": "AD Los Mares", "played": 0, "points": 0, "image": "assets/images/teams/adlosmares.jpg"},
+    {"name": "Camino Viejo CF", "played": 0, "points": 0, "image": "assets/images/teams/caminoviejocf.jpg"},
+    {"name": "CD Esfubasa", "played": 0, "points": 0, "image": "assets/images/teams/cdesfubasa.jpg"},
+    {"name": "UD Loreto", "played": 0, "points": 0, "image": "assets/images/teams/udloreto.jpg"},
+    {"name": "Huévar CF", "played": 0, "points": 0, "image": "assets/images/teams/huevarcf.jpg"}
+  ],
+  "minis-grupo-2": [
+    {"name": "Atco. Olivarense", "played": 0, "points": 0},
+    {"name": "Castilleja CF", "played": 0, "points": 0},
+    {"name": "Umbrete CF", "played": 0, "points": 0},
+    {"name": "CA Aznalc\u00e1zar", "played": 0, "points": 0},
+    {"name": "CD Tor del Rey de Pilas", "played": 0, "points": 0},
+    {"name": "Atco. Sanl\u00edcar", "played": 0, "points": 0},
+    {"name": "RCD Nueva Sevilla", "played": 0, "points": 0},
+    {"name": "Espartinas CF", "played": 0, "points": 0}
+  ],
+  "minis-grupo-3": [
+    {"name": "EDM Bormujos", "played": 0, "points": 0},
+    {"name": "CD Ricosport", "played": 0, "points": 0},
+    {"name": "UD Tomares", "played": 0, "points": 0},
+    {"name": "Atco. Libertad", "played": 0, "points": 0},
+    {"name": "Real Betis Academy \"Diego Llorente\"", "played": 0, "points": 0},
+    {"name": "EF Rio Grande", "played": 0, "points": 0},
+    {"name": "FB Coria", "played": 0, "points": 0},
+    {"name": "CD Casado Sport", "played": 0, "points": 0}
+  ],
+  "prebenjamin-primer-ano": [
+    {"name": "CDM Gerena", "played": 0, "points": 0},
+    {"name": "EDM Bormujos", "played": 0, "points": 0},
+    {"name": "Atco. Libertad", "played": 0, "points": 0},
+    {"name": "Camino Viejo CF", "played": 0, "points": 0},
+    {"name": "Real Betis Academy \"Bartra\"", "played": 0, "points": 0},
+    {"name": "CD Aznalc\u00f3llar FB", "played": 0, "points": 0},
+    {"name": "Villanueva Deportiva", "played": 0, "points": 0},
+    {"name": "CD Isidro Reguera", "played": 0, "points": 0},
+    {"name": "CA Aznalc\u00e1zar", "played": 0, "points": 0},
+    {"name": "Espartinas CF", "played": 0, "points": 0},
+    {"name": "Valencina FC", "played": 0, "points": 0},
+    {"name": "EM Villamanrique", "played": 0, "points": 0}
+  ],
+  "prebenjamin-segundo-ano-grupo-1": [
+    {"name": "EF Rio Grande", "played": 0, "points": 0},
+    {"name": "CD Tor del Rey de Pilas \"A\"", "played": 0, "points": 0},
+    {"name": "CD Tor del Rey de Pilas \"B\"", "played": 0, "points": 0},
+    {"name": "Atco. Libertad", "played": 0, "points": 0},
+    {"name": "CD Casado Sport", "played": 0, "points": 0},
+    {"name": "Camino Viejo CF", "played": 0, "points": 0},
+    {"name": "EDM Bormujos \"A\"", "played": 0, "points": 0},
+    {"name": "CD Ricosport", "played": 0, "points": 0},
+    {"name": "UD Mairena del Aljarafe \"A\"", "played": 0, "points": 0}
+  ],
+  "prebenjamin-segundo-ano-grupo-2": [
+    {"name": "EMD Burguillos", "played": 0, "points": 0},
+    {"name": "Real Betis Academy \"Junior Firpo\"", "played": 0, "points": 0},
+    {"name": "C\u00edrculo del Porvenir CD", "played": 0, "points": 0},
+    {"name": "Club N\u00e1utico Sevilla", "played": 0, "points": 0},
+    {"name": "EDM Bormujos \"B\"", "played": 0, "points": 0},
+    {"name": "CF Comarca los Alcores", "played": 0, "points": 0},
+    {"name": "UD Mairena del Aljarafe \"B\"", "played": 0, "points": 0},
+    {"name": "CD Isidro Reguera", "played": 0, "points": 0},
+    {"name": "Castilleja CF", "played": 0, "points": 0}
+  ],
+  "prebenjamin-segundo-ano-grupo-3": [
+    {"name": "CD Aznalc\u00f3llar FB", "played": 0, "points": 0},
+    {"name": "Sporting Escacena CD", "played": 0, "points": 0},
+    {"name": "CD Albaida", "played": 0, "points": 0},
+    {"name": "EM Villamanrique", "played": 0, "points": 0},
+    {"name": "Villanueva Deportiva", "played": 0, "points": 0},
+    {"name": "Huévar CF", "played": 0, "points": 0},
+    {"name": "Atco. Olivarense", "played": 0, "points": 0},
+    {"name": "Umbrete CF", "played": 0, "points": 0},
+    {"name": "CD Atco. San Mart\u00edn", "played": 0, "points": 0}
+  ]
+}

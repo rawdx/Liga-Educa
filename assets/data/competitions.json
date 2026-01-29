@@ -1,0 +1,240 @@
+[
+  {
+    "id": "minis-grupo-1",
+    "category": "Minis",
+    "seasonLabel": "Temporada",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 3
+  },
+  {
+    "id": "minis-grupo-2",
+    "category": "Minis",
+    "seasonLabel": "Temporada",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 3
+  },
+  {
+    "id": "minis-grupo-3",
+    "category": "Minis",
+    "seasonLabel": "Temporada",
+    "groupLabel": "Grupo 3",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-segundo-ano-grupo-1",
+    "category": "Prebenjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-segundo-ano-grupo-2",
+    "category": "Prebenjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-segundo-ano-grupo-3",
+    "category": "Prebenjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 3",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-primer-ano-play-off-grupo-a",
+    "category": "Prebenjamín",
+    "seasonLabel": "Primer Año Play Off",
+    "groupLabel": "Grupo A",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-primer-ano-play-off-grupo-b",
+    "category": "Prebenjamín",
+    "seasonLabel": "Primer Año Play Off",
+    "groupLabel": "Grupo B",
+    "groupsCount": 3
+  },
+  {
+    "id": "prebenjamin-primer-ano-play-off-grupo-c",
+    "category": "Prebenjamín",
+    "seasonLabel": "Primer Año Play Off",
+    "groupLabel": "Grupo C",
+    "groupsCount": 3
+  },
+  {
+    "id": "benjamin-primer-ano-grupo-1",
+    "category": "Benjamín",
+    "seasonLabel": "Primer Año",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 2
+  },
+  {
+    "id": "benjamin-primer-ano-grupo-2",
+    "category": "Benjamín",
+    "seasonLabel": "Primer Año",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 2
+  },
+  {
+    "id": "benjamin-segundo-ano-grupo-1",
+    "category": "Benjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 3
+  },
+  {
+    "id": "benjamin-segundo-ano-grupo-2",
+    "category": "Benjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 3
+  },
+  {
+    "id": "benjamin-segundo-ano-grupo-3",
+    "category": "Benjamín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 3",
+    "groupsCount": 3
+  },
+  {
+    "id": "alevin-primer-ano-grupo-1",
+    "category": "Alevín",
+    "seasonLabel": "Primer Año",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 2
+  },
+  {
+    "id": "alevin-primer-ano-grupo-2",
+    "category": "Alevín",
+    "seasonLabel": "Primer Año",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 2
+  },
+  {
+    "id": "alevin-segundo-ano-grupo-1",
+    "category": "Alevín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 2
+  },
+  {
+    "id": "alevin-segundo-ano-grupo-2",
+    "category": "Alevín",
+    "seasonLabel": "Segundo Año",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 2
+  },
+  {
+    "id": "infantil-futbol-7-grupo-1",
+    "category": "Infantil",
+    "seasonLabel": "Fútbol 7",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 3
+  },
+  {
+    "id": "infantil-futbol-7-grupo-2",
+    "category": "Infantil",
+    "seasonLabel": "Fútbol 7",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 3
+  },
+  {
+    "id": "infantil-futbol-7-grupo-3",
+    "category": "Infantil",
+    "seasonLabel": "Fútbol 7",
+    "groupLabel": "Grupo 3",
+    "groupsCount": 3
+  },
+  {
+    "id": "infantil-futbol-11-grupo-1",
+    "category": "Infantil",
+    "seasonLabel": "Fútbol 11",
+    "groupLabel": "Grupo 1",
+    "groupsCount": 2
+  },
+  {
+    "id": "infantil-futbol-11-grupo-2",
+    "category": "Infantil",
+    "seasonLabel": "Fútbol 11",
+    "groupLabel": "Grupo 2",
+    "groupsCount": 2
+  },
+  {
+    "id": "cadete-futbol-11-play-off-grupo-a",
+    "category": "Cadete",
+    "seasonLabel": "Fútbol 11 Play Off",
+    "groupLabel": "Grupo A",
+    "groupsCount": 2
+  },
+  {
+    "id": "cadete-futbol-11-play-off-grupo-b",
+    "category": "Cadete",
+    "seasonLabel": "Fútbol 11 Play Off",
+    "groupLabel": "Grupo B",
+    "groupsCount": 2
+  },
+  {
+    "id": "prebenjamin-primer-ano",
+    "category": "Prebenjamín",
+    "seasonLabel": "Primer Año",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "cadete-futbol-7",
+    "category": "Cadete",
+    "seasonLabel": "Fútbol 7",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "cadete-futbol-11",
+    "category": "Cadete",
+    "seasonLabel": "Fútbol 11",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "femenino-alevin",
+    "category": "Femenino",
+    "seasonLabel": "Alevín",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "femenino-infantil",
+    "category": "Femenino",
+    "seasonLabel": "Infantil",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "futbol-sala-benjamin",
+    "category": "Fútbol Sala",
+    "seasonLabel": "Benjamín",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "futbol-sala-alevin",
+    "category": "Fútbol Sala",
+    "seasonLabel": "Alevín",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "futbol-sala-infantil",
+    "category": "Fútbol Sala",
+    "seasonLabel": "Infantil",
+    "groupLabel": "General",
+    "groupsCount": 1
+  },
+  {
+    "id": "futbol-sala-juvenil",
+    "category": "Fútbol Sala",
+    "seasonLabel": "Juvenil",
+    "groupLabel": "General",
+    "groupsCount": 1
+  }
+]
