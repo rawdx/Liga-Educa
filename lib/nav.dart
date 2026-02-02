@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:liga_educa/pages/competition_detail_page.dart';
 import 'package:liga_educa/pages/competitions_page.dart';
 import 'package:liga_educa/pages/home_page.dart';
+import 'package:liga_educa/pages/news_detail_page.dart';
 import 'package:liga_educa/pages/news_page.dart';
 import 'package:liga_educa/pages/profile_page.dart';
 import 'package:liga_educa/pages/splash_page.dart';
@@ -10,6 +11,7 @@ import 'package:liga_educa/pages/sponsors_page.dart';
 import 'package:liga_educa/pages/team_page.dart';
 import 'package:liga_educa/pages/values_page.dart';
 import 'package:liga_educa/widgets/app_shell.dart';
+import 'package:liga_educa/widgets/news_card.dart';
 
 /// GoRouter configuration for Liga Educa.
 ///
@@ -35,6 +37,28 @@ class AppRouter {
                 path: AppRoutes.home,
                 name: 'home',
                 pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
+                routes: [
+                  GoRoute(
+                    path: 'news-detail',
+                    name: 'homeNewsDetail',
+                    pageBuilder: (context, state) {
+                      final newsItem = state.extra as NewsItemData;
+                      return CustomTransitionPage(
+                        child: NewsDetailPage(newsItem: newsItem),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+                          return FadeTransition(
+                            opacity: curved,
+                            child: SlideTransition(
+                              position: Tween<Offset>(begin: const Offset(0.03, 0.02), end: Offset.zero).animate(curved),
+                              child: child,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -77,6 +101,28 @@ class AppRouter {
                 path: AppRoutes.news,
                 name: 'news',
                 pageBuilder: (context, state) => const NoTransitionPage(child: NewsPage()),
+                routes: [
+                  GoRoute(
+                    path: 'detail',
+                    name: 'newsDetail',
+                    pageBuilder: (context, state) {
+                      final newsItem = state.extra as NewsItemData;
+                      return CustomTransitionPage(
+                        child: NewsDetailPage(newsItem: newsItem),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+                          return FadeTransition(
+                            opacity: curved,
+                            child: SlideTransition(
+                              position: Tween<Offset>(begin: const Offset(0.03, 0.02), end: Offset.zero).animate(curved),
+                              child: child,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -119,9 +165,11 @@ class AppRouter {
 class AppRoutes {
   static const String splash = '/';
   static const String home = '/home';
+  static const String homeNewsDetail = '/home/news-detail';
   static const String competitions = '/competitions';
   static const String competition = '/competitions/detail';
   static const String news = '/news';
+  static const String newsDetail = '/news/detail';
   static const String values = '/values';
   static const String profile = '/profile';
 }

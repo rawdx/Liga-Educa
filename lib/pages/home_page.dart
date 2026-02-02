@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liga_educa/drawer_manager.dart'; // Added import
-import 'package:liga_educa/models/competition_models.dart';
 import 'package:liga_educa/models/phrase.dart';
 import 'package:liga_educa/nav.dart';
-import 'package:liga_educa/services/competitions_service.dart';
 import 'package:liga_educa/services/phrases_service.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:liga_educa/widgets/news_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,42 +21,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); // Added GlobalKey
   final _phrases = PhrasesService.instance;
-  final _competitions = CompetitionsService.instance;
   Phrase? _phrase;
   bool _loadingPhrase = true;
-
-  final Map<String, bool> _expandedCategories = {
-    'Minis': false,
-    'Prebenjamines': false,
-    'Benjamines': false,
-    'Alevines': false,
-    'Infantiles': false,
-  };
-
-  final Map<String, bool> _expandedSeasons = {};
-
-  // Memoized grouped competitions data
-  Map<String, List<CompetitionSummary>>? _groupedCompetitions;
-  List<CompetitionSummary>? _allCompetitions;
 
   @override
   void initState() {
     super.initState();
     _loadPhrase();
-    _initializeCompetitions();
     drawerManager.addListener(_closeDrawerListener); // Added listener
-  }
-
-  Future<void> _initializeCompetitions() async {
-    await _competitions.loadAll();
-    _allCompetitions = _competitions.listCompetitions();
-    _groupedCompetitions = <String, List<CompetitionSummary>>{};
-    for (final c in _allCompetitions!) {
-      _groupedCompetitions!.putIfAbsent(c.category, () => []).add(c);
-    }
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
@@ -85,9 +57,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Use memoized data instead of recalculating on every build
-    final grouped =
-        _groupedCompetitions ?? <String, List<CompetitionSummary>>{};
+    // Featured news data
+    const featuredNews = NewsItemData(
+      imagePath: 'assets/images/teams/betis.jpg',
+      tag: 'Destacado',
+      timeAgo: 'Hace 2 horas',
+      title: 'FC Barcelona B se proclama campeón de la temporada 2024',
+      description:
+          'El equipo azulgrana consigue el título tras una emocionante final contra Real Betis Féminas con un resultado de 3-2.',
+      author: 'Juan Pérez',
+    );
+
     return Scaffold(
       key: _scaffoldKey, // Assigned key
       appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Inicio'),
@@ -99,27 +79,44 @@ class _HomePageState extends State<HomePage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 24.0),
-              child: Image.asset(
-                'assets/images/logos/logo_horizontal_white.png',
+              child: SvgPicture.asset(
+                'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL BLANCO.svg',
                 height: 70,
               ),
             ),
             LeagueCard(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+              padding: const EdgeInsets.all(24),
               background: LeagueCardBackground.accent,
               child: Stack(
+                clipBehavior: Clip.none,
                 children: [
+                  // Decorative background icon
+                  Positioned(
+                    right: -20,
+                    bottom: -30,
+                    child: Transform.rotate(
+                      angle: -0.2,
+                      child: Icon(
+                        Icons.handshake_rounded,
+                        size: 140,
+                        color: AppBrandColors.white.withValues(alpha: 0.12),
+                      ),
+                    ),
+                  ),
+                  // Main Content
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.favorite,
-                          color: AppBrandColors.white, size: 30),
-                      const SizedBox(height: 10),
+                          color: AppBrandColors.white, size: 32),
+                      const SizedBox(height: 12),
                       Text('Valores que nos unen',
                           style: Theme.of(context)
                               .textTheme
-                              .titleLarge
-                              ?.copyWith(color: AppBrandColors.white)),
+                              .headlineSmall
+                              ?.copyWith(
+                                  color: AppBrandColors.white,
+                                  fontWeight: FontWeight.bold)),
                       const SizedBox(height: 12),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 320),
@@ -136,18 +133,18 @@ class _HomePageState extends State<HomePage> {
                         child: _loadingPhrase
                             ? Padding(
                                 key: const ValueKey('loading'),
-                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
                                           strokeWidth: 2.2,
-                                          valueColor:
-                                              const AlwaysStoppedAnimation(
-                                                  AppBrandColors.white)),
+                                          valueColor: AlwaysStoppedAnimation(
+                                              AppBrandColors.white)),
                                     ),
                                     const SizedBox(width: 10),
                                     Text('Cargando frase…',
@@ -164,20 +161,34 @@ class _HomePageState extends State<HomePage> {
                                 key: ValueKey(_phrase?.text ?? ''),
                                 children: [
                                   SizedBox(
-                                    height: 80,
-                                    child: Center(
-                                      child: Text(
-                                        '“${_phrase?.text ?? 'El deporte nos enseña a crecer.'}”',
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(
-                                                color: AppBrandColors.white,
-                                                height: 1.5),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    height: 90,
+                                    width: double.infinity,
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.center,
+                                          child: SizedBox(
+                                            width: constraints.maxWidth,
+                                            child: Text(
+                                              '“${_phrase?.text ?? 'El deporte nos enseña a crecer.'}”',
+                                              textAlign: TextAlign.center,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge
+                                                  ?.copyWith(
+                                                      fontSize: 20,
+                                                      color:
+                                                          AppBrandColors.white,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      height: 1.3,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                   const SizedBox(height: 14),
@@ -190,218 +201,85 @@ class _HomePageState extends State<HomePage> {
                                           .labelLarge
                                           ?.copyWith(
                                               color: AppBrandColors.white
-                                                  .withValues(alpha: 0.9))),
+                                                  .withValues(alpha: 0.8),
+                                              letterSpacing: 1.2,
+                                              fontWeight: FontWeight.bold)),
                                 ],
                               ),
                       ),
                     ],
                   ),
+                  // Refresh button adjusted to avoid overlap
                   Positioned(
-                    bottom: -12,
-                    right: -12,
+                    bottom: -10,
+                    right: -10,
                     child: IconButton(
                       onPressed: _loadPhrase,
-                      icon: const Icon(Icons.refresh,
-                          color: AppBrandColors.white),
+                      icon: Icon(Icons.refresh,
+                          size: 20,
+                          color: AppBrandColors.white.withValues(alpha: 0.7)),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Center(
-              child: Text('Competiciones',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: AppSpacing.lg),
-            ...grouped.keys.map((category) {
-              final items = grouped[category] ?? const <CompetitionSummary>[];
-              final groupedBySeason = <String, List<CompetitionSummary>>{};
-              for (final c in items) {
-                groupedBySeason.putIfAbsent(c.seasonLabel, () => []).add(c);
-              }
-
-              // Check if all items share the same generic seasonLabel (like "Temporada")
-              // and should be shown directly without season accordion
-              final shouldShowDirectly = groupedBySeason.length == 1 &&
-                  (groupedBySeason.keys.first == 'Temporada' ||
-                      groupedBySeason.keys.first.isEmpty);
-
-              // Count all leaf competitions under this category (items that navigate to detail)
-              final groupsCount = items.length;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _CategoryAccordion(
-                  category: category,
-                  groupsCount: groupsCount,
-                  expanded: _expandedCategories[category] ?? false,
-                  onToggle: (v) =>
-                      setState(() => _expandedCategories[category] = v),
-                  children: shouldShowDirectly
-                      ? items
-                          .map((c) => Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: LeagueCard(
-                                  onTap: () {
-                                    final title =
-                                        Uri.encodeComponent('Liga Educa');
-                                    final subtitle = Uri.encodeComponent(
-                                        '${c.category} - ${c.groupLabel}');
-                                    context.go(
-                                        '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
-                                  },
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 14),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(c.groupLabel,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleSmall
-                                                ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface)),
-                                      ),
-                                      Icon(Icons.chevron_right,
-                                          color: AppBrandColors.green),
-                                    ],
-                                  ),
-                                ),
-                              ))
-                          .toList()
-                      : groupedBySeason.keys.map((season) {
-                          final seasonItems = groupedBySeason[season]!;
-                          if (seasonItems.length == 1) {
-                            final c = seasonItems.first;
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: LeagueCard(
-                                onTap: () {
-                                  final title =
-                                      Uri.encodeComponent('Liga Educa');
-                                  final subtitle = Uri.encodeComponent(
-                                      '${c.category} - ${c.seasonLabel}');
-                                  context.go(
-                                      '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
-                                },
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 14),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(c.seasonLabel,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall
-                                              ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface)),
-                                    ),
-                                    Icon(Icons.chevron_right,
-                                        color: AppBrandColors.green),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                          return _SeasonAccordion(
-                            season: season,
-                            expanded:
-                                _expandedSeasons['$category-$season'] ?? false,
-                            onToggle: (v) => setState(() =>
-                                _expandedSeasons['$category-$season'] = v),
-                            children: seasonItems
-                                .map((c) => Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: LeagueCard(
-                                        background: LeagueCardBackground.highlight,
-                                        onTap: () {
-                                          final title =
-                                              Uri.encodeComponent('Liga Educa');
-                                          final subtitle = Uri.encodeComponent(
-                                              '${c.category} - ${c.seasonLabel}');
-                                          context.go(
-                                              '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
-                                        },
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 14),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(c.groupLabel,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall
-                                                      ?.copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .onSurface)),
-                                            ),
-                                            Icon(Icons.chevron_right,
-                                                color: AppBrandColors.green),
-                                          ],
-                                        ),
-                                      ),
-                                    ))
-                                .toList(),
-                          );
-                        }).toList(),
-                ),
-              );
-            }),
-            const SizedBox(height: AppSpacing.md),
+            
+            // New Competitions CTA
             LeagueCard(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              backgroundColorOverride: AppBrandColors.navy900,
-              child: Column(
+              onTap: () => context.go(AppRoutes.competitions),
+              background: LeagueCardBackground.normal,
+              padding: const EdgeInsets.all(20),
+              child: Row(
                 children: [
-                  InkWell(
-                    onTap: () {
-                      launchUrl(Uri.parse('https://www.soccerfactory.es/'));
-                    },
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      child: Image.asset(
-                        'assets/images/sponsor.gif',
-                        fit: BoxFit.contain,
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        colors: [AppBrandColors.greenDark, AppBrandColors.green],
                       ),
                     ),
+                    child: const Icon(Icons.emoji_events_rounded,
+                        color: AppBrandColors.white, size: 28),
                   ),
-                  const SizedBox(height: AppSpacing.xxl),
-                  Image.asset(
-                    'assets/images/logos/logo_vertical_white.png',
-                    height: 160,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  InkWell(
-                    onTap: () {
-                      launchUrl(Uri.parse('https://www.educationleague.es'));
-                    },
-                    borderRadius: BorderRadius.circular(4),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4.0),
-                      child: Text(
-                        'www.educationleague.es',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppBrandColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Competiciones',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Consulta resultados, calendarios y clasificaciones.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                      ],
                     ),
                   ),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ],
               ),
             ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // News Section
+            NewsCard(
+              item: featuredNews,
+              onTap: () => context.go(AppRoutes.homeNewsDetail, extra: featuredNews),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+            const SponsorFooter(),
           ],
         ),
       ),
@@ -409,151 +287,3 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _CategoryAccordion extends StatelessWidget {
-  final String category;
-  final int groupsCount;
-  final bool expanded;
-  final ValueChanged<bool> onToggle;
-  final List<Widget> children;
-
-  const _CategoryAccordion({
-    required this.category,
-    required this.groupsCount,
-    required this.expanded,
-    required this.onToggle,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LeagueCard(
-      padding: EdgeInsets.zero,
-      backgroundColorOverride: AppBrandColors.navy800,
-      borderAlpha: 0.32,
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => onToggle(!expanded),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: AppBrandColors.greenDark,
-                    child: Text(
-                        category.characters.take(2).toString().toUpperCase(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: AppBrandColors.white)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(category,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(color: cs.onSurface)),
-                        const SizedBox(height: 2),
-                        Text(groupsCount > 0 ? '$groupsCount grupos' : '—',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                  ),
-                  AnimatedRotation(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    turns: expanded ? 0.5 : 0,
-                    child: Icon(Icons.expand_more, color: cs.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            child: expanded
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                    child: Column(children: children),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SeasonAccordion extends StatelessWidget {
-  final String season;
-  final bool expanded;
-  final ValueChanged<bool> onToggle;
-  final List<Widget> children;
-
-  const _SeasonAccordion({
-    required this.season,
-    required this.expanded,
-    required this.onToggle,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LeagueCard(
-      padding: EdgeInsets.zero,
-      margin: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => onToggle(!expanded),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(season,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: cs.onSurface)),
-                  ),
-                  AnimatedRotation(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    turns: expanded ? 0.5 : 0,
-                    child: Icon(Icons.expand_more, color: cs.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            child: expanded
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                    child: Column(children: children),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -3,6 +3,7 @@ import 'package:liga_educa/drawer_manager.dart'; // Added import
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class ValuesPage extends StatefulWidget {
   const ValuesPage({super.key});
@@ -94,6 +95,8 @@ class _ValuesPageState extends State<ValuesPage> {
                 ),
               );
             }),
+            const SizedBox(height: 20),
+            const SponsorFooter(),
           ],
         ),
       ),

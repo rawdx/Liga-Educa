@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:liga_educa/theme.dart';
+import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class SponsorsPage extends StatelessWidget {
   const SponsorsPage({super.key});
@@ -15,16 +17,12 @@ class SponsorsPage extends StatelessWidget {
       ('Deporte Seguro', 'Prevención y bienestar'),
     ];
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Column(
-          children: [
-            Text('Liga Educa', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurface)),
-            const SizedBox(height: 2),
-            Text('Patrocinadores', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
-          ],
-        ),
+      appBar: const LeagueAppBar(
+        title: 'Liga Educa',
+        subtitle: 'Patrocinadores',
+        showBack: true,
       ),
+      endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
@@ -73,6 +71,8 @@ class SponsorsPage extends StatelessWidget {
                 ),
               );
             }),
+            const SizedBox(height: 20),
+            const SponsorFooter(),
           ],
         ),
       ),

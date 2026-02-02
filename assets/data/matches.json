@@ -1,0 +1,226 @@
+{
+  "minis-grupo-1": {
+    "1": [
+      {
+        "home": "CD San Roque Balompié",
+        "away": "Real Betis Academy \"Bellerín\"",
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-03T17:30:00",
+        "stadium": "Campo Mpal. San Roque",
+        "referee": "Juan Pérez"
+      },
+      {
+        "home": "CD Dani Triana Ar-Rabad",
+        "away": "AD Los Mares",
+        "homeGoals": 3,
+        "awayGoals": 3,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-03T18:45:00",
+        "stadium": "Instalaciones Triana",
+        "referee": "María García"
+      },
+      {
+        "home": "Camino Viejo CF",
+        "away": "CD Esfubasa",
+        "homeGoals": 0,
+        "awayGoals": 2,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-04T10:00:00",
+        "stadium": "Estadio Camino Viejo",
+        "referee": "Carlos Ruiz"
+      },
+      {
+        "home": "UD Loreto",
+        "away": "Huévar CF",
+        "homeGoals": 1,
+        "awayGoals": 0,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-04T11:15:00",
+        "stadium": "Polideportivo Loreto",
+        "referee": "Ana López"
+      }
+    ],
+    "2": [
+      {
+        "home": "Real Betis Academy \"Bellerín\"",
+        "away": "UD Loreto",
+        "homeGoals": 4,
+        "awayGoals": 1,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-10T17:00:00",
+        "stadium": "Ciudad Deportiva Luis del Sol",
+        "referee": "David Sánchez"
+      },
+      {
+        "home": "AD Los Mares",
+        "away": "CD San Roque Balompié",
+        "homeGoals": 1,
+        "awayGoals": 0,
+        "statusValue": 2,
+        "status": "SUSP.",
+        "dateTime": "2025-10-10T18:30:00",
+        "stadium": "Campo Los Mares",
+        "referee": "Lucía Martín"
+      },
+      {
+        "home": "CD Esfubasa",
+        "away": "CD Dani Triana Ar-Rabad",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 3,
+        "status": "APLAZ.",
+        "dateTime": "2025-10-11T10:30:00",
+        "stadium": "Complejo Esfubasa",
+        "referee": "Pedro Gómez"
+      },
+      {
+        "home": "Huévar CF",
+        "away": "Camino Viejo CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "12:00",
+        "dateTime": "2025-10-11T12:00:00",
+        "stadium": "Campo Municipal Huévar",
+        "referee": "Elena Díaz"
+      }
+    ],
+    "3": [
+      {
+        "home": "CD San Roque Balompié",
+        "away": "CD Esfubasa",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "17:30",
+        "dateTime": "2025-10-17T17:30:00",
+        "stadium": "Campo Mpal. San Roque",
+        "referee": "Por designar"
+      },
+      {
+        "home": "Real Betis Academy \"Bellerín\"",
+        "away": "AD Los Mares",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "18:45",
+        "dateTime": "2025-10-17T18:45:00",
+        "stadium": "Ciudad Deportiva Luis del Sol",
+        "referee": "Por designar"
+      },
+      {
+        "home": "CD Dani Triana Ar-Rabad",
+        "away": "Huévar CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "10:00",
+        "dateTime": "2025-10-18T10:00:00",
+        "stadium": "Instalaciones Triana",
+        "referee": "Por designar"
+      },
+      {
+        "home": "UD Loreto",
+        "away": "Camino Viejo CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "11:30",
+        "dateTime": "2025-10-18T11:30:00",
+        "stadium": "Polideportivo Loreto",
+        "referee": "Por designar"
+      }
+    ],
+    "4": [
+      {
+        "home": "CD San Roque Balompié",
+        "away": "Huévar CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "16:00",
+        "dateTime": "2025-10-24T16:00:00"
+      },
+      {
+        "home": "Real Betis Academy \"Bellerín\"",
+        "away": "CD Esfubasa",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "17:15",
+        "dateTime": "2025-10-24T17:15:00",
+        "stadium": "Ciudad Deportiva Luis del Sol"
+      },
+      {
+        "home": "CD Dani Triana Ar-Rabad",
+        "away": "Camino Viejo CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "18:30",
+        "dateTime": "2025-10-24T18:30:00",
+        "referee": "Roberto Díaz"
+      },
+      {
+        "home": "UD Loreto",
+        "away": "AD Los Mares",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "",
+        "dateTime": "2025-10-25T00:00:00"
+      }
+    ],
+    "5": [
+      {
+        "home": "CD San Roque Balompié con Nombre Muy Largo para Probar Desbordamiento",
+        "away": "CD Dani Triana Ar-Rabad También Largo",
+        "homeGoals": 5,
+        "awayGoals": 4,
+        "statusValue": 1,
+        "status": "FINAL",
+        "dateTime": "2025-10-31T17:00:00",
+        "stadium": "Estadio Municipal",
+        "referee": "Árbitro Principal"
+      },
+      {
+        "home": "Real Betis Academy \"Bellerín\"",
+        "away": "Camino Viejo CF",
+        "homeGoals": 1,
+        "awayGoals": 1,
+        "statusValue": 2,
+        "status": "SUSP.",
+        "dateTime": "2025-10-31T18:15:00",
+        "referee": "Marta Silva"
+      },
+      {
+        "home": "CD Esfubasa",
+        "away": "Huévar CF",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 3,
+        "status": "APLAZ.",
+        "dateTime": "2025-11-01T10:00:00",
+        "stadium": "Complejo Deportivo"
+      },
+      {
+        "home": "AD Los Mares",
+        "away": "UD Loreto",
+        "homeGoals": 0,
+        "awayGoals": 0,
+        "statusValue": 0,
+        "status": "12:00",
+        "dateTime": "2025-11-01T12:00:00",
+        "stadium": "Campo Los Mares",
+        "referee": "Pedro Ruiz"
+      }
+    ]
+  }
+}

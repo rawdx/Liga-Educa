@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
@@ -8,14 +9,26 @@ class LeagueAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? subtitle;
   final bool showBack;
 
-  const LeagueAppBar({super.key, required this.title, this.subtitle, this.showBack = false});
+  const LeagueAppBar({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.showBack = false,
+  });
 
   @override
-  Size get preferredSize => const Size.fromHeight(64);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Determine the page title to display
+    // If subtitle is provided, it's the specific page name (e.g. "Inicio", "Competiciones")
+    // If not, fall back to title (e.g. "Liga Educa")
+    final pageTitle = subtitle ?? title;
+
     return AppBar(
       leading: showBack
           ? IconButton(
@@ -23,14 +36,37 @@ class LeagueAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: Icon(Icons.arrow_back, color: cs.onSurface),
             )
           : null,
-      centerTitle: true,
-      title: Column(
+      // If not showing back button, we might want to adjust leading width or use title
+      automaticallyImplyLeading: false, 
+      titleSpacing: showBack ? 0 : AppSpacing.md,
+      centerTitle: false,
+      title: Row(
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurface)),
-          if (subtitle != null) ...[
-            const SizedBox(height: 2),
-            Text(subtitle!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+          if (!showBack) ...[
+            SvgPicture.asset(
+              isDark
+                  ? 'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL BLANCO.svg'
+                  : 'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL COLOR.svg',
+              height: 28,
+            ),
+            Container(
+              height: 24,
+              width: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              color: cs.outline.withValues(alpha: 0.3),
+            ),
           ],
+          Expanded(
+            child: Text(
+              pageTitle.toUpperCase(),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
       actions: [
@@ -40,7 +76,7 @@ class LeagueAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: Icon(Icons.menu, color: cs.onSurface),
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
       ],
     );
   }
@@ -52,6 +88,8 @@ class LeagueMenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Drawer(
       backgroundColor: cs.surface,
       child: SafeArea(

@@ -7,6 +7,7 @@ import 'package:liga_educa/services/competitions_service.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class CompetitionsPage extends StatefulWidget {
   const CompetitionsPage({super.key});
@@ -79,6 +80,67 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
           padding: const EdgeInsets.fromLTRB(
               AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
           children: [
+            LeagueCard(
+              background: LeagueCardBackground.accent,
+              padding: const EdgeInsets.all(20),
+              child: Stack(
+                children: [
+                  // Decorative background icon
+                  Positioned(
+                    right: -20,
+                    bottom: -20,
+                    child: Transform.rotate(
+                      angle: -0.2,
+                      child: Icon(
+                        Icons.emoji_events,
+                        size: 100,
+                        color: AppBrandColors.white.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppBrandColors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.calendar_month,
+                            color: AppBrandColors.white, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Temporada 2024/25',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                        color: AppBrandColors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20)),
+                            const SizedBox(height: 4),
+                            Text(
+                                '${grouped.length} Categorías \u00b7 Fase Regular',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                        color: AppBrandColors.white
+                                            .withValues(alpha: 0.9))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
             ...grouped.keys.map((category) {
               final items = grouped[category] ?? const <CompetitionSummary>[];
               final groupedBySeason = <String, List<CompetitionSummary>>{};
@@ -116,9 +178,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                     context.push(
                                         '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                   },
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 14),
-                                  child: Row(
+                                  padding: const EdgeInsets.all(16),                                  child: Row(
                                     children: [
                                       Expanded(
                                         child: Text(c.groupLabel,
@@ -152,9 +212,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                   context.push(
                                       '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                 },
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 14),
-                                child: Row(
+                                padding: const EdgeInsets.all(16),                                child: Row(
                                   children: [
                                     Expanded(
                                       child: Text(c.seasonLabel,
@@ -192,9 +250,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                           context.push(
                                               '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                         },
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 14),
-                                        child: Row(
+                                        padding: const EdgeInsets.all(16),                                        child: Row(
                                           children: [
                                             Expanded(
                                               child: Text(c.groupLabel,
@@ -219,6 +275,8 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                 ),
               );
             }),
+            const SizedBox(height: 20),
+            const SponsorFooter(),
           ],
         ),
       ),
@@ -254,7 +312,7 @@ class _CategoryAccordion extends StatelessWidget {
             onTap: () => onToggle(!expanded),
             borderRadius: BorderRadius.circular(AppRadius.lg),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -338,7 +396,7 @@ class _SeasonAccordion extends StatelessWidget {
             onTap: () => onToggle(!expanded),
             borderRadius: BorderRadius.circular(AppRadius.lg),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Expanded(

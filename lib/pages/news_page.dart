@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liga_educa/drawer_manager.dart';
+import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
-import 'package:liga_educa/widgets/league_card.dart';
-
-class _NewsItem {
-  final String imagePath;
-  final String tag;
-  final String timeAgo;
-  final String title;
-  final String description;
-  final String author;
-
-  const _NewsItem({
-    required this.imagePath,
-    required this.tag,
-    required this.timeAgo,
-    required this.title,
-    required this.description,
-    required this.author,
-  });
-}
+import 'package:liga_educa/widgets/news_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -54,7 +39,7 @@ class _NewsPageState extends State<NewsPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final items = const [
-      _NewsItem(
+      NewsItemData(
         imagePath: 'assets/images/teams/betis.jpg',
         tag: 'Destacado',
         timeAgo: 'Hace 2 horas',
@@ -62,7 +47,7 @@ class _NewsPageState extends State<NewsPage> {
         description: 'El equipo azulgrana consigue el título tras una emocionante final contra Real Betis Féminas con un resultado de 3-2.',
         author: 'Juan Pérez',
       ),
-      _NewsItem(
+      NewsItemData(
         imagePath: 'assets/images/teams/adlosmares.jpg',
         tag: 'Formación',
         timeAgo: 'Hace 5 horas',
@@ -70,7 +55,7 @@ class _NewsPageState extends State<NewsPage> {
         description: 'Cómo el juego limpio mejora la convivencia y fortalece los valores deportivos en las nuevas generaciones.',
         author: 'María García',
       ),
-      _NewsItem(
+      NewsItemData(
         imagePath: 'assets/images/teams/huevarcf.jpg',
         tag: 'Entrenamiento',
         timeAgo: 'Hace 1 día',
@@ -93,108 +78,14 @@ class _NewsPageState extends State<NewsPage> {
             ...items.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 20),
-                child: LeagueCard(
-                  background: LeagueCardBackground.navy,
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-                        child: Image.asset(
-                          item.imagePath,
-                          height: 180,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            height: 180,
-                            color: AppBrandColors.navy900,
-                            child: const Center(child: Icon(Icons.image_not_supported, color: AppBrandColors.gray600)),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: AppBrandColors.greenDark,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    item.tag,
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  item.timeAgo,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppBrandColors.gray400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              item.title,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              item.description,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppBrandColors.gray400,
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                const CircleAvatar(
-                                  radius: 12,
-                                  backgroundColor: AppBrandColors.gray600,
-                                  child: Icon(Icons.person, size: 16, color: Colors.white),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  item.author,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppBrandColors.gray400,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'Leer más',
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    color: AppBrandColors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.arrow_forward, size: 16, color: AppBrandColors.green),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                child: NewsCard(
+                  item: item,
+                  onTap: () => context.go(AppRoutes.newsDetail, extra: item),
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            const SponsorFooter(),
           ],
         ),
       ),

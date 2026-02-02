@@ -5,6 +5,7 @@ import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
+import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -101,7 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 18),
-
+            const SponsorFooter(),
           ],
         ),
       ),

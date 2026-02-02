@@ -36,14 +36,21 @@ class MatchResult {
   final int homeGoals;
   final int awayGoals;
   final String status;
+  final int statusValue; // 0: Pending, 1: Finished, 2: Suspended, 3: Postponed
   final DateTime dateTime;
+  final String? stadium;
+  final String? referee;
+
   const MatchResult({
     required this.home,
     required this.away,
     required this.homeGoals,
     required this.awayGoals,
     required this.status,
+    required this.statusValue,
     required this.dateTime,
+    this.stadium,
+    this.referee,
   });
 }
 
@@ -52,13 +59,25 @@ class StandingRow {
   final String team;
   final int played;
   final int points;
+  final int won;
+  final int drawn;
+  final int lost;
+  final int gf;
+  final int ga;
   final String? image;
-  const StandingRow(
-      {required this.position,
-      required this.team,
-      required this.played,
-      required this.points,
-      this.image});
+
+  const StandingRow({
+    required this.position,
+    required this.team,
+    required this.played,
+    required this.points,
+    this.won = 0,
+    this.drawn = 0,
+    this.lost = 0,
+    this.gf = 0,
+    this.ga = 0,
+    this.image,
+  });
 }
 
 class CompetitionDetailData {

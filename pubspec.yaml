@@ -14,6 +14,7 @@ dependencies:
   go_router: ^17.0.1
   provider: ^6.1.2
   url_launcher: ^6.3.2
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +50,7 @@ flutter:
     - assets/data/phrases.json
     - assets/data/competitions.json
     - assets/data/teams.json
+    - assets/data/matches.json
 
 flutter_launcher_icons:
   android: true
