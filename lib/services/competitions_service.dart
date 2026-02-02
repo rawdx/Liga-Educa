@@ -246,6 +246,9 @@ class CompetitionsService {
       currentStandings = [];
     }
 
+    // Calculate streak dynamically from match data
+    final streakData = _calculateStreak(id, currentStandings);
+
     return CompetitionDetailData(
       id: id,
       title: titleOverride ?? 'Liga Educa',
@@ -255,12 +258,95 @@ class CompetitionsService {
       results: currentMatches,
       standings: currentStandings,
       nextMatchday: nextMatches,
-      streak: const {
-        'Real Betis Balompié - Marc Roca': ['W', 'W', 'D', 'W', 'L'],
-        'Camino Viejo C.F.': ['W', 'D', 'W', 'D', 'W'],
-        'Atlético Verde': ['L', 'W', 'W', 'W', 'D'],
-      },
+      streak: streakData,
     );
+  }
+
+  /// Calculates streak for all teams in a competition based on match history.
+  /// Returns a map of team name -> list of last 5 results.
+  /// Result codes: W (win), D (draw), L (loss), S (suspended), R (rest/bye)
+  Map<String, List<String>> _calculateStreak(String competitionId, List<StandingRow> standings) {
+    final Map<String, List<String>> result = {};
+
+    // Get all matches for this competition
+    final matchDays = _matchesCache?[competitionId] ?? _matchesCache?['minis-grupo-1'] ?? {};
+    if (matchDays.isEmpty || standings.isEmpty) return result;
+
+    // Get all team names from standings
+    final teamNames = standings.map((s) => s.team).toSet();
+
+    // Collect all matchdays sorted in descending order (most recent first)
+    final sortedMatchdays = matchDays.keys
+        .map((k) => int.tryParse(k) ?? 0)
+        .where((d) => d > 0)
+        .toList()
+      ..sort((a, b) => b.compareTo(a)); // Descending
+
+    // For each team, calculate their streak
+    for (final teamName in teamNames) {
+      final List<String> teamStreak = [];
+
+      for (final matchday in sortedMatchdays) {
+        if (teamStreak.length >= 5) break; // Only last 5
+
+        final matches = matchDays[matchday.toString()] ?? [];
+
+        // Find if this team played in this matchday
+        MatchResult? teamMatch;
+        bool isHome = false;
+
+        for (final match in matches) {
+          if (match.home.name == teamName) {
+            teamMatch = match;
+            isHome = true;
+            break;
+          } else if (match.away.name == teamName) {
+            teamMatch = match;
+            isHome = false;
+            break;
+          }
+        }
+
+        if (teamMatch == null) {
+          // Team didn't play in this matchday - check if it's a rest/bye
+          // Only count as rest if at least one match was played that day
+          final hasFinishedMatches = matches.any((m) => m.statusValue == 1);
+          if (hasFinishedMatches) {
+            teamStreak.add('R'); // Rest/Bye
+          }
+        } else {
+          // Team had a match in this matchday
+          switch (teamMatch.statusValue) {
+            case 1: // Finished
+              final teamGoals = isHome ? teamMatch.homeGoals : teamMatch.awayGoals;
+              final opponentGoals = isHome ? teamMatch.awayGoals : teamMatch.homeGoals;
+              if (teamGoals > opponentGoals) {
+                teamStreak.add('W'); // Win
+              } else if (teamGoals < opponentGoals) {
+                teamStreak.add('L'); // Loss
+              } else {
+                teamStreak.add('D'); // Draw
+              }
+              break;
+            case 2: // Suspended
+              teamStreak.add('S'); // Suspended
+              break;
+            case 3: // Postponed
+              teamStreak.add('A'); // Postponed/Aplazado
+              break;
+            case 0: // Pending - don't count
+            default:
+              // Skip pending matches
+              break;
+          }
+        }
+      }
+
+      // Reverse to show oldest to newest (left to right)
+      result[teamName] = teamStreak.reversed.toList();
+    }
+
+    return result;
   }
 
   List<MatchResult> getMatches(String competitionId, int matchday) {

@@ -20,7 +20,13 @@ import 'package:liga_educa/widgets/news_card.dart';
 /// - context.push('/route')
 /// - context.pop()
 class AppRouter {
+  // Navigator keys
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  // Key specifically for competitions to preserve its state (detail view)
+  static final _competitionsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'competitions');
+
   static final GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     routes: [
       GoRoute(
@@ -63,6 +69,7 @@ class AppRouter {
             ],
           ),
           StatefulShellBranch(
+            navigatorKey: _competitionsNavigatorKey,
             routes: [
               GoRoute(
                 path: AppRoutes.competitions,

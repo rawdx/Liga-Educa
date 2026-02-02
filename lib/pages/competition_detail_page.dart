@@ -127,7 +127,7 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
             const SizedBox(height: 16),
             _DetailBlock(
               header: const _SectionTitle(title: 'Racha', icon: Icons.whatshot),
-              content: StreakView(streak: _data.streak),
+              content: StreakView(streak: _data.streak, standings: _data.standings),
             ),
             const SizedBox(height: AppSpacing.md),
             const SponsorFooter(),
@@ -804,66 +804,258 @@ class _StandingsViewState extends State<StandingsView> {
 }
 class StreakView extends StatelessWidget {
   final Map<String, List<String>> streak;
-  const StreakView({super.key, required this.streak});
+  final List<StandingRow>? standings;
+  const StreakView({super.key, required this.streak, this.standings});
+
+  String? _getTeamImage(String teamName) {
+    if (standings == null) return null;
+    for (final s in standings!) {
+      if (s.team == teamName) return s.image;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    if (streak.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Text(
+            'No hay datos de racha disponibles.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: streak.entries.map((e) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Team streaks
+        ...streak.entries.map((e) {
+          final teamImage = _getTeamImage(e.key);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                // Team logo
+                _TeamBadge(teamName: e.key, image: teamImage),
+                const SizedBox(width: 12),
+                // Team name
+                Expanded(
+                  child: Text(
+                    e.key,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Streak dots (last 5 matchdays)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: e.value.isEmpty
+                      ? [
+                          Text(
+                            '—',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ]
+                      : e.value
+                          .take(5)
+                          .map((x) => Padding(
+                              padding: const EdgeInsets.only(left: 6),
+                              child: _StreakDot(value: x)))
+                          .toList(growable: false),
+                ),
+              ],
+            ),
+          );
+        }),
+        
+        const SizedBox(height: 20),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+          ),
+          child: Column(
             children: [
-              Expanded(
-                  child: Text(e.key,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: cs.onSurface),
-                      overflow: TextOverflow.ellipsis)),
-              const SizedBox(width: 8),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: e.value
-                    .map((x) => Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: _StreakDot(value: x)))
-                    .toList(growable: false),
+              Wrap(
+                spacing: 16,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: const [
+                  _StreakLegendItem(code: 'G', label: 'Ganado'),
+                  _StreakLegendItem(code: 'E', label: 'Empate'),
+                  _StreakLegendItem(code: 'P', label: 'Perdido'),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 16,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: const [
+                  _StreakLegendItem(code: 'D', label: 'Descansa'),
+                  _StreakLegendItem(code: 'S', label: 'Suspendido'),
+                  _StreakLegendItem(code: 'A', label: 'Aplazado'),
+                ],
               ),
             ],
           ),
-        );
-      }).toList(growable: false),
+        ),
+      ],
+    );
+  }
+}
+
+class _TeamBadge extends StatelessWidget {
+  final String teamName;
+  final String? image;
+  const _TeamBadge({required this.teamName, this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    if (image != null) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: Image.asset(
+            image!,
+            width: 30,
+            height: 30,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildFallback(context, cs),
+          ),
+        ),
+      );
+    }
+    return _buildFallback(context, cs);
+  }
+
+  Widget _buildFallback(BuildContext context, ColorScheme cs) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        teamName.isNotEmpty ? teamName[0].toUpperCase() : '?',
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: cs.onSurface,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
+class _StreakLegendItem extends StatelessWidget {
+  final String code;
+  final String label;
+  const _StreakLegendItem({required this.code, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    
+    String dotCode = code;
+    if (code == 'G') dotCode = 'W';
+    if (code == 'E') dotCode = 'D';
+    if (code == 'P') dotCode = 'L';
+    if (code == 'D') dotCode = 'R';
+    // 'A' maps directly to 'A' in _StreakDot for Aplazado
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _StreakDot(value: dotCode, small: true),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: cs.onSurface.withValues(alpha: 0.8),
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _StreakDot extends StatelessWidget {
   final String value;
-  const _StreakDot({required this.value});
+  final bool small;
+  const _StreakDot({required this.value, this.small = false});
 
   @override
   Widget build(BuildContext context) {
-    final Color c = switch (value) {
-      'W' => AppBrandColors.green,
-      'D' => AppBrandColors.gray400,
-      'L' => const Color(0xFFEF4444),
-      _ => AppBrandColors.gray600,
+    final cs = Theme.of(context).colorScheme;
+    
+    // Balanced color palette with glass style
+    final (String label, Color color) = switch (value) {
+      'W' => ('G', const Color.fromARGB(255, 7, 226, 87)), // G for Ganado (Green)
+      'D' => ('E', const Color(0xFFF59E0B)), // E for Empate (Amber)
+      'L' => ('P', const Color.fromARGB(255, 242, 63, 63)), // P for Perdido (Red)
+      'R' => ('D', const Color.fromARGB(255, 193, 193, 193)), // D for Descansa (Grey)
+      'S' => ('S', const Color(0xFF334155)), // S for Suspendido (Dark)
+      'A' => ('A', Colors.indigoAccent), // A for Aplazado (Indigo)
+      _ => ('-', const Color(0xFF64748B)),
     };
+
+    final double size = small ? 18 : 26;
+    final double fontSize = small ? 9 : 11;
+    final bool isSuspended = value == 'S';
+
     return Container(
-      width: 18,
-      height: 18,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-          color: c.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: c.withValues(alpha: 0.75))),
+        color: color.withValues(alpha: isSuspended ? 0.35 : 0.2),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(
+          color: isSuspended 
+            ? Colors.white.withValues(alpha: 0.35) 
+            : color.withValues(alpha: 0.6),
+          width: 1.2,
+        ),
+      ),
       alignment: Alignment.center,
-      child: Text(value,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: isSuspended && Theme.of(context).brightness == Brightness.dark 
+            ? Colors.white.withValues(alpha: 0.8) 
+            : color,
+          fontWeight: FontWeight.w900,
+          fontSize: fontSize,
+          height: 1,
+        ),
+      ),
     );
   }
 }

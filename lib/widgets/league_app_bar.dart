@@ -88,7 +88,6 @@ class LeagueMenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Drawer(
       backgroundColor: cs.surface,

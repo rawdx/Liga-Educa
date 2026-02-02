@@ -1,13 +1,13 @@
 {
   "minis-grupo-1": [
-    {"name": "CD San Roque Balompié", "played": 0, "points": 0, "image": "assets/images/teams/cdsanroquebalompie.jpg"},
-    {"name": "Real Betis Academy \"Bellerín\"", "played": 0, "points": 0, "image": "assets/images/teams/betis.jpg"},
-    {"name": "CD Dani Triana Ar-Rabad", "played": 0, "points": 0, "image": "assets/images/teams/cddanitrianaarrabad.jpg"},
-    {"name": "AD Los Mares", "played": 0, "points": 0, "image": "assets/images/teams/adlosmares.jpg"},
-    {"name": "Camino Viejo CF", "played": 0, "points": 0, "image": "assets/images/teams/caminoviejocf.jpg"},
-    {"name": "CD Esfubasa", "played": 0, "points": 0, "image": "assets/images/teams/cdesfubasa.jpg"},
-    {"name": "UD Loreto", "played": 0, "points": 0, "image": "assets/images/teams/udloreto.jpg"},
-    {"name": "Huévar CF", "played": 0, "points": 0, "image": "assets/images/teams/huevarcf.jpg"}
+    {"name": "CD San Roque Balompié", "played": 2, "points": 3, "image": "assets/images/teams/cdsanroquebalompie.jpg"},
+    {"name": "Real Betis Academy \"Bellerín\"", "played": 2, "points": 3, "image": "assets/images/teams/betis.jpg"},
+    {"name": "CD Dani Triana Ar-Rabad", "played": 1, "points": 1, "image": "assets/images/teams/cddanitrianaarrabad.jpg"},
+    {"name": "AD Los Mares", "played": 1, "points": 1, "image": "assets/images/teams/adlosmares.jpg"},
+    {"name": "Camino Viejo CF", "played": 1, "points": 0, "image": "assets/images/teams/caminoviejocf.jpg"},
+    {"name": "CD Esfubasa", "played": 1, "points": 3, "image": "assets/images/teams/cdesfubasa.jpg"},
+    {"name": "UD Loreto", "played": 2, "points": 3, "image": "assets/images/teams/udloreto.jpg"},
+    {"name": "Huévar CF", "played": 1, "points": 0, "image": "assets/images/teams/huevarcf.jpg"}
   ],
   "minis-grupo-2": [
     {"name": "Atco. Olivarense", "played": 0, "points": 0},

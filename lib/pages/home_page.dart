@@ -258,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Consulta resultados, calendarios y clasificaciones.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                         ),
                       ],
                     ),

@@ -98,7 +98,7 @@ class NewsCard extends StatelessWidget {
                 Text(
                   item.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppBrandColors.gray400,
+                    color: AppBrandColors.white.withValues(alpha: 0.8),
                     height: 1.5,
                   ),
                 ),
