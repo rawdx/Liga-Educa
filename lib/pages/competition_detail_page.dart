@@ -541,7 +541,7 @@ class _StandingsViewState extends State<StandingsView> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    const double rowHeight = 40.0; // Slightly shorter for pills
+    const double rowHeight = 44.0; // Standard height
     const double headerHeight = 32.0;
 
     // Helper to build a cell
@@ -554,7 +554,7 @@ class _StandingsViewState extends State<StandingsView> {
         child: Text(text,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: bold ? cs.onSurface : cs.onSurfaceVariant,
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+                fontWeight: bold ? FontWeight.w700 : FontWeight.normal)),
       );
     }
 
@@ -569,11 +569,11 @@ class _StandingsViewState extends State<StandingsView> {
             style: Theme.of(context)
                 .textTheme
                 .labelSmall
-                ?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                ?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
       );
     }
 
-    return LayoutBuilder(
+        return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
         // Expanded: 85% / 15%, Collapsed: 55% / 45%
@@ -802,6 +802,7 @@ class _StandingsViewState extends State<StandingsView> {
     );
   }
 }
+
 class StreakView extends StatelessWidget {
   final Map<String, List<String>> streak;
   final List<StandingRow>? standings;
@@ -818,6 +819,8 @@ class StreakView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    const double rowHeight = 44.0;
+    const double headerHeight = 32.0;
 
     if (streak.isEmpty) {
       return Padding(
@@ -833,32 +836,67 @@ class StreakView extends StatelessWidget {
       );
     }
 
+    final entries = streak.entries.toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Team streaks
-        ...streak.entries.map((e) {
+        // Table-like header to match Standings
+        SizedBox(
+          height: headerHeight,
+          child: Row(
+            children: [
+              const SizedBox(width: 4),
+              Text(
+                'EQUIPO',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text(
+                  'RACHA',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Team streaks with alternating backgrounds
+        ...entries.asMap().entries.map((entry) {
+          final index = entry.key;
+          final e = entry.value;
           final teamImage = _getTeamImage(e.key);
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+          return Container(
+            height: rowHeight,
+            margin: const EdgeInsets.symmetric(vertical: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
             child: Row(
               children: [
-                // Team logo
-                _TeamBadge(teamName: e.key, image: teamImage),
-                const SizedBox(width: 12),
-                // Team name
+                _TeamBadge(teamName: e.key, image: teamImage, size: 24),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     e.key,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: cs.onSurface,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Streak dots (last 5 matchdays)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: e.value.isEmpty
@@ -877,6 +915,7 @@ class StreakView extends StatelessWidget {
                               child: _StreakDot(value: x)))
                           .toList(growable: false),
                 ),
+                const SizedBox(width: 4),
               ],
             ),
           );
@@ -925,7 +964,8 @@ class StreakView extends StatelessWidget {
 class _TeamBadge extends StatelessWidget {
   final String teamName;
   final String? image;
-  const _TeamBadge({required this.teamName, this.image});
+  final double size;
+  const _TeamBadge({required this.teamName, this.image, this.size = 30});
 
   @override
   Widget build(BuildContext context) {
@@ -934,15 +974,15 @@ class _TeamBadge extends StatelessWidget {
     if (image != null) {
       return Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: BorderRadius.circular(5),
           child: Image.asset(
             image!,
-            width: 30,
-            height: 30,
+            width: size,
+            height: size,
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => _buildFallback(context, cs),
           ),
@@ -954,11 +994,11 @@ class _TeamBadge extends StatelessWidget {
 
   Widget _buildFallback(BuildContext context, ColorScheme cs) {
     return Container(
-      width: 30,
-      height: 30,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
       ),
       alignment: Alignment.center,
@@ -967,6 +1007,7 @@ class _TeamBadge extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: cs.onSurface,
           fontWeight: FontWeight.bold,
+          fontSize: size * 0.4,
         ),
       ),
     );
