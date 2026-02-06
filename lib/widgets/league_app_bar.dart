@@ -148,6 +148,14 @@ class LeagueMenuDrawer extends StatelessWidget {
                 },
               ),
               _DrawerItem(
+                icon: Icons.star,
+                label: 'Favoritos',
+                onTap: () {
+                  context.pop();
+                  context.go(AppRoutes.favorites);
+                },
+              ),
+              _DrawerItem(
                 icon: Icons.favorite,
                 label: 'Valores deportivos',
                 onTap: () {
@@ -159,11 +167,19 @@ class LeagueMenuDrawer extends StatelessWidget {
               Divider(color: cs.outline.withValues(alpha: 0.25)),
               const SizedBox(height: 10),
               _DrawerItem(
+                icon: Icons.person,
+                label: 'Mi Perfil',
+                onTap: () {
+                  context.pop();
+                  context.push(AppRoutes.profile);
+                },
+              ),
+              _DrawerItem(
                 icon: Icons.groups,
                 label: 'Equipo',
                 onTap: () {
                   context.pop();
-                  context.go('${AppRoutes.profile}/equipo');
+                  context.push(AppRoutes.team);
                 },
               ),
               _DrawerItem(
@@ -171,7 +187,7 @@ class LeagueMenuDrawer extends StatelessWidget {
                 label: 'Patrocinadores',
                 onTap: () {
                   context.pop();
-                  context.go('${AppRoutes.profile}/patrocinadores');
+                  context.push(AppRoutes.sponsors);
                 },
               ),
               const Spacer(),

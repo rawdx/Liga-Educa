@@ -5,6 +5,8 @@ import 'package:liga_educa/pages/competitions_page.dart';
 import 'package:liga_educa/pages/home_page.dart';
 import 'package:liga_educa/pages/news_detail_page.dart';
 import 'package:liga_educa/pages/news_page.dart';
+import 'package:liga_educa/pages/team_detail_page.dart';
+import 'package:liga_educa/pages/favorites_page.dart';
 import 'package:liga_educa/pages/profile_page.dart';
 import 'package:liga_educa/pages/splash_page.dart';
 import 'package:liga_educa/pages/sponsors_page.dart';
@@ -136,34 +138,54 @@ class AppRouter {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.values,
-                name: 'values',
-                pageBuilder: (context, state) => const NoTransitionPage(child: ValuesPage()),
+                path: AppRoutes.favorites,
+                name: 'favorites',
+                pageBuilder: (context, state) => const NoTransitionPage(child: FavoritesPage()),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.profile,
-                name: 'profile',
-                pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
-                routes: [
-                  GoRoute(
-                    path: 'equipo',
-                    name: 'team',
-                    pageBuilder: (context, state) => MaterialPage(child: TeamPage()),
-                  ),
-                  GoRoute(
-                    path: 'patrocinadores',
-                    name: 'sponsors',
-                    pageBuilder: (context, state) => MaterialPage(child: SponsorsPage()),
-                  ),
-                ],
+                path: AppRoutes.values,
+                name: 'values',
+                pageBuilder: (context, state) => const NoTransitionPage(child: ValuesPage()),
               ),
             ],
           ),
         ],
+      ),
+      // Standalone pages accessible from drawer/profile
+      GoRoute(
+        path: AppRoutes.profile,
+        name: 'profile',
+        pageBuilder: (context, state) => const MaterialPage(child: ProfilePage()),
+      ),
+      GoRoute(
+        path: AppRoutes.team,
+        name: 'team',
+        pageBuilder: (context, state) => const MaterialPage(child: TeamPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.teamDetail,
+        name: 'teamDetail',
+        pageBuilder: (context, state) {
+          final teamName = state.uri.queryParameters['teamName'] ?? '';
+          final competitionId = state.uri.queryParameters['competitionId'] ?? '';
+          final competitionTitle = state.uri.queryParameters['competitionTitle'];
+          return MaterialPage(
+            child: TeamDetailPage(
+              teamName: teamName,
+              competitionId: competitionId,
+              competitionTitle: competitionTitle,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.sponsors,
+        name: 'sponsors',
+        pageBuilder: (context, state) => const MaterialPage(child: SponsorsPage()),
       ),
     ],
   );
@@ -177,6 +199,10 @@ class AppRoutes {
   static const String competition = '/competitions/detail';
   static const String news = '/news';
   static const String newsDetail = '/news/detail';
+  static const String favorites = '/favorites';
   static const String values = '/values';
   static const String profile = '/profile';
+  static const String team = '/team';
+  static const String teamDetail = '/team-detail';
+  static const String sponsors = '/sponsors';
 }

@@ -27,12 +27,13 @@ class AppShell extends StatelessWidget {
             onDestinationSelected: (index) {
               final wasDifferentTab = index != navigationShell.currentIndex;
 
-              // Use goBranch to switch tabs.
-              // If tapping the already active tab, go to the initial location (reset stack).
-              // If switching tabs, preserve the state (don't reset stack).
+              // For Home (0), News (2) and Favorites (3), we always want to reset to the root page.
+              // For Competitions (1) and others (4 - Values), we preserve state unless the tab is already active.
+              bool shouldReset = index == 0 || index == 2 || index == 3 || index == navigationShell.currentIndex;
+
               navigationShell.goBranch(
                 index,
-                initialLocation: index == navigationShell.currentIndex,
+                initialLocation: shouldReset,
               );
 
               // Close drawer asynchronously to avoid blocking the navigation animation
@@ -67,14 +68,14 @@ class AppShell extends StatelessWidget {
       label: 'Noticias',
     ),
     NavigationDestination(
+      icon: Icon(Icons.star_outline),
+      selectedIcon: Icon(Icons.star),
+      label: 'Favoritos',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.favorite_border),
       selectedIcon: Icon(Icons.favorite),
       label: 'Valores',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.person_outline),
-      selectedIcon: Icon(Icons.person),
-      label: 'Perfil',
     ),
   ];
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liga_educa/models/competition_models.dart';
+import 'package:liga_educa/nav.dart';
+import 'package:liga_educa/pages/calendar_page.dart';
 import 'package:liga_educa/services/competitions_service.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
+import 'package:liga_educa/widgets/match_item.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CompetitionDetailPage extends StatefulWidget {
   final String competitionId;
@@ -113,7 +116,37 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                         for (int i = 0; i < matches.length; i++) ...[
                           if (i > 0) const SizedBox(height: 12),
                           MatchItem(match: matches[i]),
-                        ]
+                        ],
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CalendarPage(
+                                    competitionId: widget.competitionId,
+                                    title: _data.title,
+                                    subtitle: _data.subtitle,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.calendar_month, size: 18),
+                            label: const Text('CALENDARIO',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppBrandColors.green,
+                              side: const BorderSide(
+                                  color: AppBrandColors.green, width: 1.5),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
             ),
@@ -310,223 +343,6 @@ class _MatchdaySelector extends StatelessWidget {
   }
 }
 
-class MatchItem extends StatelessWidget {
-  final MatchResult match;
-  final bool showScore;
-  const MatchItem({super.key, required this.match, this.showScore = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final date = _formatEs(match.dateTime);
-
-    // Logic for Status Label and Color
-    final (String statusLabel, Color statusColor) = switch (match.statusValue) {
-      1 => ('FINAL', AppBrandColors.green),
-      2 => ('SUSP.', const Color(0xFFEF4444)), // Red
-      3 => ('APLAZ.', const Color(0xFFF59E0B)), // Amber
-      _ => (match.status.isNotEmpty ? match.status : '—:—', cs.onSurfaceVariant),
-    };
-
-    // Only show score if the match is finished (statusValue == 1)
-    final actuallyShowScore = showScore && match.statusValue == 1;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppBrandColors.gray700.withValues(alpha: 0.65), 
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(_capitalize(date),
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(color: cs.onSurfaceVariant),
-                    overflow: TextOverflow.ellipsis),
-              ),
-              const SizedBox(width: 8),
-              Text(statusLabel,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: statusColor, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.right),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _TeamAvatar(label: match.home.short, image: match.home.image),
-              const SizedBox(width: 10),
-              Expanded(
-                  child: Text(match.home.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: cs.onSurface),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis)),
-              if (actuallyShowScore) ...[
-                const SizedBox(width: 12),
-                _ScorePill(text: '${match.homeGoals}'),
-              ],
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _TeamAvatar(label: match.away.short, accent: false, image: match.away.image),
-              const SizedBox(width: 10),
-              Expanded(
-                  child: Text(match.away.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: cs.onSurface),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis)),
-              if (actuallyShowScore) ...[
-                const SizedBox(width: 12),
-                _ScorePill(text: '${match.awayGoals}'),
-              ],
-            ],
-          ),
-          
-          if (match.stadium != null || match.referee != null) ...[
-            const SizedBox(height: 14),
-            Divider(
-                height: 1, color: AppBrandColors.gray600.withValues(alpha: 0.4)),
-            const SizedBox(height: 14),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: match.stadium != null
-                        ? () {
-                            final query = Uri.encodeComponent(match.stadium!);
-                            launchUrl(Uri.parse(
-                                'https://www.google.com/maps/search/?api=1&query=$query'));
-                          }
-                        : null,
-                    borderRadius: BorderRadius.circular(4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.location_on,
-                            size: 16, color: cs.onSurfaceVariant),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(match.stadium ?? 'Por definir',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
-                                      color: match.stadium != null
-                                          ? AppBrandColors.green
-                                          : cs.onSurfaceVariant)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Text(match.referee ?? 'Por designar',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: cs.onSurfaceVariant),
-                            textAlign: TextAlign.right),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(Icons.sports, size: 16, color: cs.onSurfaceVariant),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _TeamAvatar extends StatelessWidget {
-  final String label;
-  final bool accent;
-  final String? image;
-  const _TeamAvatar({required this.label, this.accent = true, this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: accent
-            ? AppBrandColors.greenDark.withValues(alpha: 0.35)
-            : AppBrandColors.gray700.withValues(alpha: 0.55),
-        border:
-            Border.all(color: AppBrandColors.gray600.withValues(alpha: 0.55)),
-      ),
-      alignment: Alignment.center,
-      child: (image != null && image!.isNotEmpty)
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(9),
-              child: Image.asset(image!,
-                  width: 34,
-                  height: 34,
-                  fit: BoxFit.cover, errorBuilder: (c, e, s) {
-                return Text(label,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface));
-              }))
-          : Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-    );
-  }
-}
-
-class _ScorePill extends StatelessWidget {
-  final String text;
-  const _ScorePill({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 32,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppBrandColors.navy800,
-        borderRadius: BorderRadius.circular(10),
-        border:
-            Border.all(color: AppBrandColors.gray600.withValues(alpha: 0.6)),
-      ),
-      child: Text(text,
-          style: Theme.of(context)
-              .textTheme
-              .titleSmall
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-    );
-  }
-}
-
 class StandingsView extends StatefulWidget {
   final List<StandingRow> standings;
   const StandingsView({super.key, required this.standings});
@@ -661,29 +477,39 @@ class _StandingsViewState extends State<StandingsView> {
                                                         fontWeight: FontWeight.bold)))),
                                     const SizedBox(width: 8),
                                     Expanded(
-                                      child: Row(
-                                        children: [
-                                          if (r.image != null) ...[
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(6),
-                                              child: Image.asset(r.image!,
-                                                  width: 20,
-                                                  height: 20,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (_, __, ___) =>
-                                                      const SizedBox.shrink()),
-                                            ),
-                                            const SizedBox(width: 8),
+                                      child: InkWell(
+                                        onTap: () {
+                                          final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId) ?? 'minis-grupo-1';
+                                          final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
+                                          context.push(
+                                            '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(r.team)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Row(
+                                          children: [
+                                            if (r.image != null) ...[
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(6),
+                                                child: Image.asset(r.image!,
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (_, __, ___) =>
+                                                        const SizedBox.shrink()),
+                                              ),
+                                              const SizedBox(width: 8),
+                                            ],
+                                            Expanded(
+                                                child: Text(r.team,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(color: cs.onSurface),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis)),
                                           ],
-                                          Expanded(
-                                              child: Text(r.team,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(color: cs.onSurface),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis)),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -871,94 +697,102 @@ class StreakView extends StatelessWidget {
         
         // Team streaks with alternating backgrounds
         ...entries.asMap().entries.map((entry) {
-          final index = entry.key;
           final e = entry.value;
           final teamImage = _getTeamImage(e.key);
-          return Container(
-            height: rowHeight,
-            margin: const EdgeInsets.symmetric(vertical: 1),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            child: Row(
-              children: [
-                _TeamBadge(teamName: e.key, image: teamImage, size: 24),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    e.key,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: e.value.isEmpty
-                      ? [
-                          Text(
-                            '—',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ]
-                      : e.value
-                          .take(5)
-                          .map((x) => Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: _StreakDot(value: x)))
-                          .toList(growable: false),
-                ),
-                const SizedBox(width: 4),
-              ],
-            ),
-          );
-        }),
-        
-        const SizedBox(height: 20),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-          ),
-          child: Column(
-            children: [
-              Wrap(
-                spacing: 16,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: const [
-                  _StreakLegendItem(code: 'G', label: 'Ganado'),
-                  _StreakLegendItem(code: 'E', label: 'Empate'),
-                  _StreakLegendItem(code: 'P', label: 'Perdido'),
-                ],
+          return InkWell(
+            onTap: () {
+              final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId) ?? 'minis-grupo-1';
+              final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
+              context.push(
+                '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(e.key)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
+              );
+            },
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: Container(
+              height: rowHeight,
+              margin: const EdgeInsets.symmetric(vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 16,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: const [
-                  _StreakLegendItem(code: 'D', label: 'Descansa'),
-                  _StreakLegendItem(code: 'S', label: 'Suspendido'),
-                  _StreakLegendItem(code: 'A', label: 'Aplazado'),
-                ],
+              child: Row(
+                children: [
+              _TeamBadge(teamName: e.key, image: teamImage, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  e.key,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 12),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: e.value.isEmpty
+                    ? [
+                        Text(
+                          '—',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                        ),
+                      ]
+                    : e.value
+                        .take(5)
+                        .map((x) => Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: _StreakDot(value: x)))
+                        .toList(growable: false),
+              ),
+              const SizedBox(width: 4),
             ],
           ),
         ),
-      ],
-    );
-  }
+      );
+    }),
+    const SizedBox(height: 20),
+    Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Wrap(
+            spacing: 16,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
+            children: const [
+              _StreakLegendItem(code: 'G', label: 'Ganado'),
+              _StreakLegendItem(code: 'E', label: 'Empate'),
+              _StreakLegendItem(code: 'P', label: 'Perdido'),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 16,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
+            children: const [
+              _StreakLegendItem(code: 'D', label: 'Descansa'),
+              _StreakLegendItem(code: 'S', label: 'Suspendido'),
+              _StreakLegendItem(code: 'A', label: 'Aplazado'),
+            ],
+          ),
+        ],
+      ),
+    ),
+  ],
+);
+}
 }
 
 class _TeamBadge extends StatelessWidget {
@@ -1055,8 +889,6 @@ class _StreakDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    
     // Balanced color palette with glass style
     final (String label, Color color) = switch (value) {
       'W' => ('G', const Color.fromARGB(255, 7, 226, 87)), // G for Ganado (Green)
@@ -1099,42 +931,4 @@ class _StreakDot extends StatelessWidget {
       ),
     );
   }
-}
-
-String _capitalize(String s) {
-  if (s.isEmpty) return s;
-  return s[0].toUpperCase() + s.substring(1);
-}
-
-String _formatEs(DateTime dt) {
-  const weekdays = [
-    'lunes',
-    'martes',
-    'miércoles',
-    'jueves',
-    'viernes',
-    'sábado',
-    'domingo'
-  ];
-  const months = [
-    'enero',
-    'febrero',
-    'marzo',
-    'abril',
-    'mayo',
-    'junio',
-    'julio',
-    'agosto',
-    'septiembre',
-    'octubre',
-    'noviembre',
-    'diciembre'
-  ];
-
-  // Dart weekday: 1=Mon ... 7=Sun
-  final wd = weekdays[(dt.weekday - 1).clamp(0, 6)];
-  final mo = months[(dt.month - 1).clamp(0, 11)];
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mm = dt.minute.toString().padLeft(2, '0');
-  return '$wd ${dt.day} de $mo \u00b7 $hh:$mm';
 }

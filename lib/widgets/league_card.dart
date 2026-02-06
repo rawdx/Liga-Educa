@@ -10,6 +10,7 @@ class LeagueCard extends StatelessWidget {
   final VoidCallback? onTap;
   final LeagueCardBackground background;
   final Color? backgroundColorOverride;
+  final Color? borderColorOverride;
   final double borderAlpha;
 
   const LeagueCard({
@@ -20,6 +21,7 @@ class LeagueCard extends StatelessWidget {
     this.onTap,
     this.background = LeagueCardBackground.normal,
     this.backgroundColorOverride,
+    this.borderColorOverride,
     this.borderAlpha = 0.22,
   });
 
@@ -55,12 +57,18 @@ class LeagueCard extends StatelessWidget {
 
     final content = Padding(padding: padding, child: child);
 
+    final borderColor = borderColorOverride ?? cs.outline.withValues(alpha: borderAlpha);
+
     return Container(
       margin: margin,
       decoration: BoxDecoration(
         gradient: base,
         color: backgroundColor,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(
+          color: borderColor,
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,

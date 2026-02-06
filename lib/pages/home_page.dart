@@ -10,6 +10,7 @@ import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/news_card.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
+import 'package:liga_educa/widgets/join_us_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -277,6 +278,9 @@ class _HomePageState extends State<HomePage> {
               item: featuredNews,
               onTap: () => context.go(AppRoutes.homeNewsDetail, extra: featuredNews),
             ),
+
+            const SizedBox(height: AppSpacing.lg),
+            const JoinUsSection(),
 
             const SizedBox(height: AppSpacing.lg),
             const SponsorFooter(),

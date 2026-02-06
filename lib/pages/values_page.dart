@@ -7,6 +7,7 @@ import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
+import 'package:liga_educa/widgets/join_us_section.dart';
 
 class ValuesPage extends StatefulWidget {
   const ValuesPage({super.key});
@@ -203,7 +204,7 @@ class _ValuesPageState extends State<ValuesPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        const Icon(Icons.auto_awesome, size: 18, color: AppBrandColors.green),
+                        const Icon(Icons.stars_rounded, size: 18, color: AppBrandColors.green),
                         const SizedBox(width: 8),
                         Text(
                           'Nuestros Valores',
@@ -443,54 +444,7 @@ class _ValuesPageState extends State<ValuesPage> {
             const SizedBox(height: 28),
 
             // 6. Join Us Section
-            LeagueCard(
-              background: LeagueCardBackground.navy,
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Text(
-                    '¡Únete a nuestra familia!',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppBrandColors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Forma parte de una liga que valora tanto el juego como la persona',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppBrandColors.white.withValues(alpha: 0.8),
-                        ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppBrandColors.greenDark,
-                        foregroundColor: AppBrandColors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      icon: const Icon(Icons.person_add, size: 20),
-                      label: const Text(
-                        'Inscribirse Ahora',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const JoinUsSection(),
 
             const SizedBox(height: AppSpacing.xl),
             const SponsorFooter(),

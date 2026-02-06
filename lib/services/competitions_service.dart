@@ -370,4 +370,41 @@ class CompetitionsService {
 
     return [];
   }
+
+  Map<String, List<MatchResult>> getAllMatchesGrouped(String competitionId) {
+    if (_matchesCache == null) return {};
+
+    // Try exact ID
+    if (_matchesCache!.containsKey(competitionId)) {
+      return _matchesCache![competitionId] ?? {};
+    }
+
+    // Fallback for demo
+    if (_matchesCache!.containsKey('minis-grupo-1')) {
+      return _matchesCache!['minis-grupo-1'] ?? {};
+    }
+
+    return {};
+  }
+
+  /// Retrieves all matches (past and future) for a specific team in a competition.
+  List<MatchResult> getTeamMatches(String competitionId, String teamName) {
+    final List<MatchResult> teamMatches = [];
+    final matchDays = _matchesCache?[competitionId] ?? _matchesCache?['minis-grupo-1'] ?? {};
+    
+    // Sort matchday keys numerically
+    final sortedKeys = matchDays.keys.toList()
+      ..sort((a, b) => (int.tryParse(a) ?? 0).compareTo(int.tryParse(b) ?? 0));
+
+    for (final dayKey in sortedKeys) {
+      final matches = matchDays[dayKey] ?? [];
+      for (final match in matches) {
+        if (match.home.name == teamName || match.away.name == teamName) {
+          teamMatches.add(match);
+        }
+      }
+    }
+    
+    return teamMatches;
+  }
 }

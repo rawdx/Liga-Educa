@@ -12,6 +12,7 @@ class SponsorFooter extends StatelessWidget {
     return LeagueCard(
       padding: const EdgeInsets.all(AppSpacing.sm),
       backgroundColorOverride: AppBrandColors.navy900,
+      borderAlpha: 0,
       child: Column(
         children: [
           InkWell(

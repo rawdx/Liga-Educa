@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       key: _scaffoldKey, // Assigned key
-      appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Perfil'),
+      appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Perfil', showBack: true),
       endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
         child: ListView(
@@ -78,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 10),
             LeagueCard(
               background: LeagueCardBackground.navy,
-              onTap: () => context.push('${AppRoutes.profile}/equipo'),
+              onTap: () => context.push(AppRoutes.team),
               child: Row(
                 children: [
                   const Icon(Icons.groups, color: AppBrandColors.green),
@@ -91,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 10),
             LeagueCard(
               background: LeagueCardBackground.navy,
-              onTap: () => context.push('${AppRoutes.profile}/patrocinadores'),
+              onTap: () => context.push(AppRoutes.sponsors),
               child: Row(
                 children: [
                   const Icon(Icons.handshake, color: AppBrandColors.green),
