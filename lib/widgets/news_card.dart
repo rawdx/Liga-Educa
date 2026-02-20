@@ -80,7 +80,7 @@ class NewsCard extends StatelessWidget {
                     Text(
                       item.timeAgo,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppBrandColors.gray400,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -114,7 +114,8 @@ class NewsCard extends StatelessWidget {
                     Text(
                       item.author,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppBrandColors.gray400,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const Spacer(),
@@ -126,7 +127,7 @@ class NewsCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward, size: 16, color: AppBrandColors.green),
+                    const Icon(Icons.arrow_forward_rounded, size: 16, color: AppBrandColors.green),
                   ],
                 ),
               ],

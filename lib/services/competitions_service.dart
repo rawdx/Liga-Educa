@@ -32,6 +32,7 @@ class CompetitionsService {
                 dayMap[day] = matches.map<MatchResult>((m) {
                   final map = m as Map<String, dynamic>;
                   return MatchResult(
+                    matchday: int.tryParse(day) ?? 0,
                     home: MatchTeam(
                         name: map['home'],
                         short: _getShortName(map['home']),
@@ -115,6 +116,24 @@ class CompetitionsService {
                 final gf = played > 0 ? (played * 1.5 + (nameHash % 10)).toInt() : 0;
                 final ga = played > 0 ? (played * 1.0 + (nameHash % 8)).toInt() : 0;
 
+                // Simulate Home/Away breakdown
+                final playedHome = (played / 2).ceil();
+                final playedAway = played - playedHome;
+                
+                final wonHome = (won / 2).ceil();
+                final wonAway = won - wonHome;
+                
+                final drawnHome = (drawn / 2).ceil();
+                final drawnAway = drawn - drawnHome;
+                
+                final lostHome = playedHome - wonHome - drawnHome;
+                final lostAway = playedAway - wonAway - drawnAway;
+
+                final gfHome = (gf / 2).ceil();
+                final gfAway = gf - gfHome;
+                final gaHome = (ga / 2).ceil();
+                final gaAway = ga - gaHome;
+
                 return StandingRow(
                   position: 0,
                   team: t['name'] ?? '',
@@ -126,6 +145,16 @@ class CompetitionsService {
                   gf: gf,
                   ga: ga,
                   image: t['image'],
+                  wonHome: wonHome,
+                  drawnHome: drawnHome,
+                  lostHome: lostHome,
+                  gfHome: gfHome,
+                  gaHome: gaHome,
+                  wonAway: wonAway,
+                  drawnAway: drawnAway,
+                  lostAway: lostAway,
+                  gfAway: gfAway,
+                  gaAway: gaAway,
                 );
               }).toList();
             }
@@ -206,17 +235,6 @@ class CompetitionsService {
       if (days.containsKey((currentMatchday + 1).toString())) {
         nextMatches = days[(currentMatchday + 1).toString()]!;
       }
-    } else {
-      // If no data found for this ID, try 'minis-grupo-1' as fallback for demo
-      if (_matchesCache != null && _matchesCache!.containsKey('minis-grupo-1')) {
-         final days = _matchesCache!['minis-grupo-1']!;
-         if (days.containsKey(currentMatchday.toString())) {
-           currentMatches = days[currentMatchday.toString()]!;
-         }
-         if (days.containsKey((currentMatchday + 1).toString())) {
-           nextMatches = days[(currentMatchday + 1).toString()]!;
-         }
-      }
     }
 
     // Get standings from cache and sort
@@ -249,9 +267,19 @@ class CompetitionsService {
     // Calculate streak dynamically from match data
     final streakData = _calculateStreak(id, currentStandings);
 
+    // Generate a descriptive title if not provided
+    String defaultTitle = 'Competición';
+    if (competition != null) {
+      if (competition.groupLabel.isNotEmpty && competition.groupLabel != 'General') {
+        defaultTitle = '${competition.category} - ${competition.groupLabel}';
+      } else {
+        defaultTitle = competition.category;
+      }
+    }
+
     return CompetitionDetailData(
       id: id,
-      title: titleOverride ?? 'Liga Educa',
+      title: titleOverride ?? defaultTitle,
       subtitle: subtitleOverride ?? '',
       groupTitle: groupTitle,
       currentMatchday: currentMatchday,
@@ -269,7 +297,7 @@ class CompetitionsService {
     final Map<String, List<String>> result = {};
 
     // Get all matches for this competition
-    final matchDays = _matchesCache?[competitionId] ?? _matchesCache?['minis-grupo-1'] ?? {};
+    final matchDays = _matchesCache?[competitionId] ?? {};
     if (matchDays.isEmpty || standings.isEmpty) return result;
 
     // Get all team names from standings
@@ -359,14 +387,6 @@ class CompetitionsService {
         return days[matchday.toString()] ?? [];
       }
     }
-    
-    // Fallback for demo
-    if (_matchesCache!.containsKey('minis-grupo-1')) {
-      final days = _matchesCache!['minis-grupo-1'];
-      if (days != null) {
-        return days[matchday.toString()] ?? [];
-      }
-    }
 
     return [];
   }
@@ -379,18 +399,13 @@ class CompetitionsService {
       return _matchesCache![competitionId] ?? {};
     }
 
-    // Fallback for demo
-    if (_matchesCache!.containsKey('minis-grupo-1')) {
-      return _matchesCache!['minis-grupo-1'] ?? {};
-    }
-
     return {};
   }
 
   /// Retrieves all matches (past and future) for a specific team in a competition.
   List<MatchResult> getTeamMatches(String competitionId, String teamName) {
     final List<MatchResult> teamMatches = [];
-    final matchDays = _matchesCache?[competitionId] ?? _matchesCache?['minis-grupo-1'] ?? {};
+    final matchDays = _matchesCache?[competitionId] ?? {};
     
     // Sort matchday keys numerically
     final sortedKeys = matchDays.keys.toList()
@@ -406,5 +421,29 @@ class CompetitionsService {
     }
     
     return teamMatches;
+  }
+
+  /// Retrieves the coaching staff for a specific team.
+  List<Coach> getTeamCoaches(String teamName) {
+    // Sample data for demo
+    return [
+      Coach(name: 'Francisco Javier Ruiz', role: 'Primer Entrenador'),
+      Coach(name: 'Manuel García López', role: 'Segundo Entrenador'),
+    ];
+  }
+
+  /// Retrieves the players list for a specific team.
+  List<Player> getTeamPlayers(String teamName) {
+    // Sample data for demo
+    return [
+      Player(name: 'Adrián González', number: '1', position: 'Portero'),
+      Player(name: 'Daniel Sánchez', number: '4', position: 'Defensa'),
+      Player(name: 'Alejandro Ramos', number: '5', position: 'Defensa'),
+      Player(name: 'Marcos Benítez', number: '8', position: 'Centrocampista'),
+      Player(name: 'Hugo Martínez', number: '10', position: 'Delantero'),
+      Player(name: 'Álvaro López', number: '11', position: 'Delantero'),
+      Player(name: 'Pau Ferré', number: '14', position: 'Centrocampista'),
+      Player(name: 'Lucas Romero', number: '21', position: 'Defensa'),
+    ];
   }
 }

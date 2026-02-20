@@ -8,14 +8,22 @@ import 'package:url_launcher/url_launcher.dart';
 class MatchItem extends StatelessWidget {
   final MatchResult match;
   final bool showScore;
-  const MatchItem({super.key, required this.match, this.showScore = true});
+  final String? competitionId;
+  final String? competitionTitle;
+
+  const MatchItem({
+    super.key, 
+    required this.match, 
+    this.showScore = true,
+    this.competitionId,
+    this.competitionTitle,
+  });
 
   void _navigateToTeam(BuildContext context, String teamName) {
-    // In a real app, we would have the competitionId available here
-    // For now, we'll try to find it from the context or a parent widget
-    // but since MatchItem is used in many places, we'll use a default if not provided.
+    if (competitionId == null) return;
+    
     context.push(
-      '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(teamName)}&competitionId=minis-grupo-1',
+      '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(teamName)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle!)}' : ''}',
     );
   }
 
@@ -29,7 +37,7 @@ class MatchItem extends StatelessWidget {
       1 => ('FINAL', AppBrandColors.green),
       2 => ('SUSP.', const Color(0xFFEF4444)), // Red
       3 => ('APLAZ.', const Color(0xFFF59E0B)), // Amber
-      _ => (match.status.isNotEmpty ? match.status : '—:—', cs.onSurfaceVariant),
+      _ => (match.status.isNotEmpty ? match.status : '—:—', cs.onSurface.withValues(alpha: 0.85)),
     };
 
     // Only show score if the match is finished (statusValue == 1)
@@ -52,7 +60,10 @@ class MatchItem extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .labelMedium
-                        ?.copyWith(color: cs.onSurfaceVariant),
+                        ?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w600,
+                        ),
                     overflow: TextOverflow.ellipsis),
               ),
               const SizedBox(width: 8),
@@ -75,7 +86,10 @@ class MatchItem extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(color: cs.onSurface),
+                            ?.copyWith(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis)),
                 if (actuallyShowScore) ...[
@@ -98,7 +112,10 @@ class MatchItem extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(color: cs.onSurface),
+                            ?.copyWith(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis)),
                 if (actuallyShowScore) ...[
@@ -131,7 +148,7 @@ class MatchItem extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.location_on,
-                            size: 16, color: cs.onSurfaceVariant),
+                            size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(match.stadium ?? 'Por definir',
@@ -141,7 +158,7 @@ class MatchItem extends StatelessWidget {
                                   ?.copyWith(
                                       color: match.stadium != null
                                           ? AppBrandColors.green
-                                          : cs.onSurfaceVariant)),
+                                          : cs.onSurface.withValues(alpha: 0.85))),
                         ),
                       ],
                     ),
@@ -157,11 +174,11 @@ class MatchItem extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                                ?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
                             textAlign: TextAlign.right),
                       ),
                       const SizedBox(width: 6),
-                      Icon(Icons.sports, size: 16, color: cs.onSurfaceVariant),
+                      Icon(Icons.sports, size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
                     ],
                   ),
                 ),

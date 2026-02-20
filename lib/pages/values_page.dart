@@ -96,7 +96,7 @@ class _ValuesPageState extends State<ValuesPage> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.favorite, color: AppBrandColors.white, size: 32),
+                      const Icon(Icons.favorite_rounded, color: AppBrandColors.white, size: 32),
                       const SizedBox(height: 12),
                       Text('Valores que nos unen',
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -204,7 +204,7 @@ class _ValuesPageState extends State<ValuesPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        const Icon(Icons.stars_rounded, size: 18, color: AppBrandColors.green),
+                        const Icon(Icons.volunteer_activism_rounded, size: 18, color: AppBrandColors.green),
                         const SizedBox(width: 8),
                         Text(
                           'Nuestros Valores',
@@ -224,22 +224,22 @@ class _ValuesPageState extends State<ValuesPage> {
                   Column(
                     children: [
                       _ValueListItem(
-                        icon: Icons.handshake,
+                        icon: Icons.handshake_rounded,
                         title: 'Respeto',
                         description: 'Hacia compañeros, rivales, árbitros y aficionados. El respeto es la base de todo deporte.',
                       ),
                       _ValueListItem(
-                        icon: Icons.groups,
+                        icon: Icons.groups_rounded,
                         title: 'Trabajo en Equipo',
                         description: 'Juntos somos más fuertes. El éxito individual nace del esfuerzo colectivo.',
                       ),
                       _ValueListItem(
-                        icon: Icons.emoji_events,
+                        icon: Icons.emoji_events_rounded,
                         title: 'Excelencia',
                         description: 'Buscamos dar lo mejor de nosotros en cada entrenamiento y cada partido.',
                       ),
                       _ValueListItem(
-                        icon: Icons.balance,
+                        icon: Icons.balance_rounded,
                         title: 'Fair Play',
                         description: 'Jugamos limpio, ganamos con honor y perdemos con dignidad.',
                       ),

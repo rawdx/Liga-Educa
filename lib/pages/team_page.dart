@@ -18,8 +18,8 @@ class TeamPage extends StatelessWidget {
     ];
     return Scaffold(
       appBar: const LeagueAppBar(
-        title: 'Liga Educa',
-        subtitle: 'Equipo',
+        title: 'Equipo',
+        subtitle: 'Liga Educa',
         showBack: true,
       ),
       endDrawer: const LeagueMenuDrawer(),
@@ -31,7 +31,7 @@ class TeamPage extends StatelessWidget {
               background: LeagueCardBackground.accent,
               child: Row(
                 children: [
-                  const Icon(Icons.groups, color: AppBrandColors.white),
+                  const Icon(Icons.groups_rounded, color: AppBrandColors.white),
                   const SizedBox(width: 12),
                   Expanded(child: Text('Equipo organizador', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppBrandColors.white))),
                 ],
@@ -53,7 +53,7 @@ class TeamPage extends StatelessWidget {
                           color: AppBrandColors.gray700.withValues(alpha: 0.55),
                           border: Border.all(color: AppBrandColors.gray600.withValues(alpha: 0.55)),
                         ),
-                        child: const Icon(Icons.person, color: AppBrandColors.white),
+                        child: const Icon(Icons.person_rounded, color: AppBrandColors.white),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

@@ -26,9 +26,9 @@ Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed 
         ''';
 
     return Scaffold(
-      appBar: LeagueAppBar(
-        title: 'Liga Educa',
-        subtitle: newsItem.tag,
+      appBar: const LeagueAppBar(
+        title: 'Noticias',
+        subtitle: 'Liga Educa',
         showBack: true,
       ),
       endDrawer: const LeagueMenuDrawer(),
@@ -75,12 +75,12 @@ Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed 
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.access_time, size: 14, color: cs.onSurfaceVariant),
+                        Icon(Icons.access_time, size: 14, color: cs.onSurface.withValues(alpha: 0.7)),
                         const SizedBox(width: 4),
                         Text(
                           newsItem.timeAgo,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
+                            color: cs.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -104,7 +104,7 @@ Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed 
                         const CircleAvatar(
                           radius: 16,
                           backgroundColor: AppBrandColors.gray600,
-                          child: Icon(Icons.person, size: 20, color: Colors.white),
+                          child: Icon(Icons.person_rounded, size: 20, color: Colors.white),
                         ),
                         const SizedBox(width: 10),
                         Column(

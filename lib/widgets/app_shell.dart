@@ -54,12 +54,12 @@ class AppShell extends StatelessWidget {
   static const List<NavigationDestination> _navigationDestinations = [
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
+      selectedIcon: Icon(Icons.home_rounded),
       label: 'Inicio',
     ),
     NavigationDestination(
       icon: Icon(Icons.emoji_events_outlined),
-      selectedIcon: Icon(Icons.emoji_events),
+      selectedIcon: Icon(Icons.emoji_events_rounded),
       label: 'Comp.',
     ),
     NavigationDestination(
@@ -68,14 +68,19 @@ class AppShell extends StatelessWidget {
       label: 'Noticias',
     ),
     NavigationDestination(
-      icon: Icon(Icons.star_outline),
-      selectedIcon: Icon(Icons.star),
+      icon: Icon(Icons.star_outline_rounded),
+      selectedIcon: Icon(Icons.star_rounded),
       label: 'Favoritos',
     ),
     NavigationDestination(
-      icon: Icon(Icons.favorite_border),
-      selectedIcon: Icon(Icons.favorite),
+      icon: Icon(Icons.favorite_border_rounded),
+      selectedIcon: Icon(Icons.favorite_rounded),
       label: 'Valores',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.person_outline_rounded),
+      selectedIcon: Icon(Icons.person_rounded),
+      label: 'Perfil',
     ),
   ];
 }

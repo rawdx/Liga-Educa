@@ -108,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.favorite,
+                      const Icon(Icons.favorite_rounded,
                           color: AppBrandColors.white, size: 32),
                       const SizedBox(height: 12),
                       Text('Valores que nos unen',

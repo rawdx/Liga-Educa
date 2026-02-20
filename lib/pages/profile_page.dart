@@ -39,69 +39,107 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      key: _scaffoldKey, // Assigned key
-      appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Perfil', showBack: true),
+      key: _scaffoldKey,
+      appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Perfil'),
       endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
           children: [
+            // Bloque de Usuario Estilo Premium
             LeagueCard(
               background: LeagueCardBackground.navy,
-              child: Row(
+              padding: EdgeInsets.zero,
+              child: Stack(
                 children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      gradient: const LinearGradient(colors: [AppBrandColors.greenDark, AppBrandColors.green]),
-                    ),
-                    child: const Icon(Icons.person, color: AppBrandColors.white, size: 28),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                       children: [
-                        Text('Invitado', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurface)),
-                        const SizedBox(height: 2),
-                        Text('Sin cuenta (modo local)', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              colors: [AppBrandColors.greenDark, AppBrandColors.green],
+                            ),
+                          ),
+                          child: const Icon(Icons.person_rounded, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Mi Perfil',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: cs.onSurface,
+                                    ),
+                              ),
+                              Text(
+                                'Usuario Invitado',
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                      color: cs.onSurface.withValues(alpha: 0.7),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            
+            // Secciones
+            LeagueCard(
+              background: LeagueCardBackground.navy,
+              onTap: () => context.go(AppRoutes.team),
+              child: Row(
+                children: [
+                  const Icon(Icons.groups_rounded, color: AppBrandColors.green),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Mi Equipo',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: cs.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                ],
+              ),
+            ),
             const SizedBox(height: 12),
-            Text('Secciones', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurface)),
-            const SizedBox(height: 10),
             LeagueCard(
               background: LeagueCardBackground.navy,
-              onTap: () => context.push(AppRoutes.team),
+              onTap: () => context.go(AppRoutes.sponsors),
               child: Row(
                 children: [
-                  const Icon(Icons.groups, color: AppBrandColors.green),
+                  const Icon(Icons.handshake_rounded, color: AppBrandColors.green),
                   const SizedBox(width: 12),
-                  Expanded(child: Text('Equipo', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: cs.onSurface))),
-                  Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+                  Expanded(
+                    child: Text(
+                      'Patrocinadores',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: cs.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            LeagueCard(
-              background: LeagueCardBackground.navy,
-              onTap: () => context.push(AppRoutes.sponsors),
-              child: Row(
-                children: [
-                  const Icon(Icons.handshake, color: AppBrandColors.green),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text('Patrocinadores', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: cs.onSurface))),
-                  Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 24),
             const SponsorFooter(),
           ],
         ),

@@ -31,6 +31,7 @@ class MatchTeam {
 }
 
 class MatchResult {
+  final int matchday;
   final MatchTeam home;
   final MatchTeam away;
   final int homeGoals;
@@ -42,6 +43,7 @@ class MatchResult {
   final String? referee;
 
   const MatchResult({
+    required this.matchday,
     required this.home,
     required this.away,
     required this.homeGoals,
@@ -66,6 +68,18 @@ class StandingRow {
   final int ga;
   final String? image;
 
+  // Detailed stats for Casa/Fuera
+  final int wonHome;
+  final int drawnHome;
+  final int lostHome;
+  final int gfHome;
+  final int gaHome;
+  final int wonAway;
+  final int drawnAway;
+  final int lostAway;
+  final int gfAway;
+  final int gaAway;
+
   const StandingRow({
     required this.position,
     required this.team,
@@ -77,7 +91,20 @@ class StandingRow {
     this.gf = 0,
     this.ga = 0,
     this.image,
+    this.wonHome = 0,
+    this.drawnHome = 0,
+    this.lostHome = 0,
+    this.gfHome = 0,
+    this.gaHome = 0,
+    this.wonAway = 0,
+    this.drawnAway = 0,
+    this.lostAway = 0,
+    this.gfAway = 0,
+    this.gaAway = 0,
   });
+
+  int get playedHome => wonHome + drawnHome + lostHome;
+  int get playedAway => wonAway + drawnAway + lostAway;
 }
 
 class CompetitionDetailData {
@@ -103,3 +130,58 @@ class CompetitionDetailData {
     required this.streak,
   });
 }
+
+class FavoriteTeam {
+  final String teamName;
+  final String competitionId;
+  final String? competitionTitle;
+  final String? image;
+
+  const FavoriteTeam({
+    required this.teamName,
+    required this.competitionId,
+    this.competitionTitle,
+    this.image,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'teamName': teamName,
+        'competitionId': competitionId,
+        'competitionTitle': competitionTitle,
+        'image': image,
+      };
+
+  factory FavoriteTeam.fromJson(Map<String, dynamic> json) => FavoriteTeam(
+        teamName: json['teamName'],
+        competitionId: json['competitionId'],
+        competitionTitle: json['competitionTitle'],
+        image: json['image'],
+      );
+}
+
+class Coach {
+  final String name;
+  final String role;
+  final String? image;
+
+  const Coach({
+    required this.name,
+    required this.role,
+    this.image,
+  });
+}
+
+class Player {
+  final String name;
+  final String? number;
+  final String? position;
+  final String? image;
+
+  const Player({
+    required this.name,
+    this.number,
+    this.position,
+    this.image,
+  });
+}
+

@@ -62,10 +62,11 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: LeagueAppBar(
-        title: widget.title ?? 'Calendario',
-        subtitle: widget.subtitle,
+        title: 'Calendario',
+        subtitle: _data.title,
         showBack: true,
       ),
+      endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
         child: ListView.builder(
           padding: const EdgeInsets.fromLTRB(
@@ -110,7 +111,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           right: -15,
                           bottom: -15,
                           child: Icon(
-                            Icons.calendar_month,
+                            Icons.calendar_month_rounded,
                             size: 80,
                             color: AppBrandColors.white.withValues(alpha: 0.05),
                           ),
@@ -257,7 +258,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               duration: const Duration(milliseconds: 220),
                               curve: Curves.easeOutCubic,
                               turns: isExpanded ? 0.5 : 0,
-                              child: Icon(Icons.expand_more,
+                              child: Icon(Icons.expand_more_rounded,
                                   color: AppBrandColors.gray400),
                             ),
                           ],
@@ -374,7 +375,11 @@ class _MatchListByDate extends StatelessWidget {
               ),
             ),
             for (var i = 0; i < entry.value.length; i++) ...[
-              _CalendarMatchItem(match: entry.value[i]),
+              _CalendarMatchItem(
+                match: entry.value[i],
+                competitionId: (context.findAncestorStateOfType<_CalendarPageState>()?.widget.competitionId),
+                competitionTitle: (context.findAncestorStateOfType<_CalendarPageState>()?.widget.title),
+              ),
               if (i < entry.value.length - 1) const SizedBox(height: 10),
             ],
             const SizedBox(height: 16),
@@ -397,7 +402,14 @@ class _MatchListByDate extends StatelessWidget {
 
 class _CalendarMatchItem extends StatelessWidget {
   final MatchResult match;
-  const _CalendarMatchItem({required this.match});
+  final String? competitionId;
+  final String? competitionTitle;
+
+  const _CalendarMatchItem({
+    required this.match,
+    this.competitionId,
+    this.competitionTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -418,6 +430,8 @@ class _CalendarMatchItem extends StatelessWidget {
             logo: match.home.image,
             score: match.statusValue == 1 ? match.homeGoals.toString() : null,
             shortName: match.home.short,
+            competitionId: competitionId,
+            competitionTitle: competitionTitle,
           ),
           const SizedBox(height: 10),
           _TeamRow(
@@ -426,6 +440,8 @@ class _CalendarMatchItem extends StatelessWidget {
             score: match.statusValue == 1 ? match.awayGoals.toString() : null,
             shortName: match.away.short,
             isHome: false,
+            competitionId: competitionId,
+            competitionTitle: competitionTitle,
           ),
         ],
       ),
@@ -439,6 +455,8 @@ class _TeamRow extends StatelessWidget {
   final String? score;
   final String shortName;
   final bool isHome;
+  final String? competitionId;
+  final String? competitionTitle;
 
   const _TeamRow({
     required this.name,
@@ -446,6 +464,8 @@ class _TeamRow extends StatelessWidget {
     this.score,
     required this.shortName,
     this.isHome = true,
+    this.competitionId,
+    this.competitionTitle,
   });
 
   @override
@@ -453,12 +473,10 @@ class _TeamRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () {
-        final calendarState = context.findAncestorStateOfType<_CalendarPageState>();
-        final competitionId = calendarState?.widget.competitionId ?? 'minis-grupo-1';
-        final competitionTitle = calendarState?.widget.title;
+        if (competitionId == null) return;
         
         context.push(
-          '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(name)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
+          '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(name)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle!)}' : ''}',
         );
       },
       borderRadius: BorderRadius.circular(8),
@@ -471,6 +489,7 @@ class _TeamRow extends StatelessWidget {
               name,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: cs.onSurface,
+                    fontWeight: FontWeight.w600,
                   ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -39,9 +39,8 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
   void _changeMatchday(int delta) {
     setState(() {
       _currentMatchday += delta;
-      // Simple bound check simulation (e.g. 1 to 30)
       if (_currentMatchday < 1) _currentMatchday = 1;
-      // In a real app we would know the max matchday
+      if (_currentMatchday > 30) _currentMatchday = 30;
     });
   }
 
@@ -53,9 +52,16 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
 
     return Scaffold(
       appBar: LeagueAppBar(
-        title: _data.title,
-        subtitle: _data.subtitle.isNotEmpty ? _data.subtitle : null,
+        title: 'Competiciones',
+        subtitle: _data.title,
         showBack: true,
+        onBack: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(AppRoutes.competitions);
+          }
+        },
       ),
       endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
@@ -72,7 +78,7 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                     width: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: const Icon(Icons.emoji_events,
+                      child: const Icon(Icons.emoji_events_rounded,
                           color: AppBrandColors.white),
                     ),
                   ),
@@ -115,13 +121,18 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                       children: [
                         for (int i = 0; i < matches.length; i++) ...[
                           if (i > 0) const SizedBox(height: 12),
-                          MatchItem(match: matches[i]),
+                          MatchItem(
+                            match: matches[i],
+                            competitionId: widget.competitionId,
+                            competitionTitle: widget.title,
+                          ),
                         ],
                         const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
+                        Material(
+                          color: AppBrandColors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -133,16 +144,32 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.calendar_month, size: 18),
-                            label: const Text('CALENDARIO',
-                                style: TextStyle(fontWeight: FontWeight.w700)),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppBrandColors.green,
-                              side: const BorderSide(
-                                  color: AppBrandColors.green, width: 1.5),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppBrandColors.green.withValues(alpha: 0.4),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.calendar_month, 
+                                      size: 18, color: AppBrandColors.green),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'CALENDARIO COMPLETO',
+                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: AppBrandColors.green,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.8,
+                                        ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -154,8 +181,12 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
             const SizedBox(height: 16),
             _DetailBlock(
               header: const _SectionTitle(
-                  title: 'Clasificación', icon: Icons.leaderboard),
-              content: StandingsView(standings: _data.standings),
+                  title: 'Clasificación', icon: Icons.leaderboard_rounded),
+              content: StandingsView(
+                standings: _data.standings,
+                competitionId: widget.competitionId,
+                competitionTitle: widget.title,
+              ),
             ),
             const SizedBox(height: 16),
             _DetailBlock(
@@ -320,7 +351,7 @@ class _MatchdaySelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
+            child: Icon(Icons.chevron_left_rounded, color: cs.onSurfaceVariant),
           ),
         ),
         const SizedBox(width: 16),
@@ -335,7 +366,7 @@ class _MatchdaySelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+            child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ),
         ),
       ],
@@ -345,7 +376,15 @@ class _MatchdaySelector extends StatelessWidget {
 
 class StandingsView extends StatefulWidget {
   final List<StandingRow> standings;
-  const StandingsView({super.key, required this.standings});
+  final String competitionId;
+  final String? competitionTitle;
+
+  const StandingsView({
+    super.key,
+    required this.standings,
+    required this.competitionId,
+    this.competitionTitle,
+  });
 
   @override
   State<StandingsView> createState() => _StandingsViewState();
@@ -403,18 +442,18 @@ class _StandingsViewState extends State<StandingsView> {
               duration: const Duration(milliseconds: 300),
               curve: Curves.fastOutSlowIn,
               width: targetLeftWidth,
-              child: GestureDetector(
-                onTap: () => setState(() => _expandTeamNames = !_expandTeamNames),
-                behavior: HitTestBehavior.opaque,
-                child: Stack(
-                  children: [
-                    // Content
-                    Container(
-                      color: Theme.of(context).colorScheme.surface, // Opaque background
-                      child: Column(
-                        children: [
-                          // Header
-                          SizedBox(
+              child: Stack(
+                children: [
+                  // Content
+                  Container(
+                    color: Theme.of(context).colorScheme.surface, // Opaque background
+                    child: Column(
+                      children: [
+                        // Header
+                        GestureDetector(
+                          onTap: () => setState(() => _expandTeamNames = !_expandTeamNames),
+                          behavior: HitTestBehavior.opaque,
+                          child: SizedBox(
                             height: headerHeight,
                             child: Row(
                               children: [
@@ -438,7 +477,7 @@ class _StandingsViewState extends State<StandingsView> {
                                         const SizedBox(width: 4),
                                         // Visual cue
                                         Icon(
-                                          _expandTeamNames ? Icons.compress : Icons.expand, 
+                                          _expandTeamNames ? Icons.compress_rounded : Icons.expand_rounded, 
                                           size: 14, 
                                           color: cs.onSurfaceVariant
                                         ),
@@ -447,25 +486,29 @@ class _StandingsViewState extends State<StandingsView> {
                               ],
                             ),
                           ),
-                          // Data
-                          ...widget.standings.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final r = entry.value;
-                            final bool isEven = index % 2 == 0;
-                            final rowColor = isEven ? Colors.transparent : cs.surfaceContainerHighest.withValues(alpha: 0.3);
+                        ),
+                        // Data
+                        ...widget.standings.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final r = entry.value;
+                          final bool isEven = index % 2 == 0;
+                          final rowColor = isEven ? Colors.transparent : cs.surfaceContainerHighest.withValues(alpha: 0.3);
 
-                            return Container(
-                                height: rowHeight,
-                                margin: const EdgeInsets.symmetric(vertical: 2),
-                                decoration: BoxDecoration(
-                                    color: rowColor,
-                                    // Only round the left side to merge with the scroll area
-                                    borderRadius: isEven 
-                                        ? null 
-                                        : const BorderRadius.horizontal(left: Radius.circular(AppRadius.sm))),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
+                          return Container(
+                              height: rowHeight,
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              decoration: BoxDecoration(
+                                  color: rowColor,
+                                  // Only round the left side to merge with the scroll area
+                                  borderRadius: isEven 
+                                      ? null 
+                                      : const BorderRadius.horizontal(left: Radius.circular(AppRadius.sm))),
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => setState(() => _expandTeamNames = !_expandTeamNames),
+                                    behavior: HitTestBehavior.opaque,
+                                    child: SizedBox(
                                         width: 32,
                                         child: Center(
                                             child: Text('${r.position}',
@@ -475,72 +518,76 @@ class _StandingsViewState extends State<StandingsView> {
                                                     ?.copyWith(
                                                         color: cs.onSurface,
                                                         fontWeight: FontWeight.bold)))),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId) ?? 'minis-grupo-1';
-                                          final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
-                                          context.push(
-                                            '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(r.team)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
-                                          );
-                                        },
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Row(
-                                          children: [
-                                            if (r.image != null) ...[
-                                              ClipRRect(
-                                                borderRadius: BorderRadius.circular(6),
-                                                child: Image.asset(r.image!,
-                                                    width: 20,
-                                                    height: 20,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (_, __, ___) =>
-                                                        const SizedBox.shrink()),
-                                              ),
-                                              const SizedBox(width: 8),
-                                            ],
-                                            Expanded(
-                                                child: Text(r.team,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyMedium
-                                                        ?.copyWith(color: cs.onSurface),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: () {
+                                        final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId);
+                                        if (competitionId == null) return;
+                                        final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
+                                        context.push(
+                                          '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(r.team)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
+                                        );
+                                      },
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Row(
+                                        children: [
+                                          if (r.image != null) ...[
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(6),
+                                              child: Image.asset(r.image!,
+                                                  width: 20,
+                                                  height: 20,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, __, ___) =>
+                                                      const SizedBox.shrink()),
+                                            ),
+                                            const SizedBox(width: 8),
                                           ],
-                                        ),
+                                          Expanded(
+                                              child: Text(r.team,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: cs.onSurface,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis)),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              );
-                          })
-                        ],
-                      ),
+                                  ),
+                                ],
+                              ),
+                            );
+                        })
+                      ],
                     ),
-                    
-                    // Shadow Overlay (Right Edge)
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      right: 0,
-                      width: 6, // Width of the shadow gradient
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.08), // Very subtle shadow
-                            ],
-                          ),
+                  ),
+                  
+                  // Shadow Overlay (Right Edge)
+                  Positioned(
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    width: 6, // Width of the shadow gradient
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.08), // Very subtle shadow
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             
@@ -701,7 +748,8 @@ class StreakView extends StatelessWidget {
           final teamImage = _getTeamImage(e.key);
           return InkWell(
             onTap: () {
-              final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId) ?? 'minis-grupo-1';
+              final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId);
+              if (competitionId == null) return;
               final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
               context.push(
                 '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(e.key)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
@@ -725,7 +773,7 @@ class StreakView extends StatelessWidget {
                   e.key,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: cs.onSurface,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),

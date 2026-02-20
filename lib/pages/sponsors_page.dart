@@ -18,8 +18,8 @@ class SponsorsPage extends StatelessWidget {
     ];
     return Scaffold(
       appBar: const LeagueAppBar(
-        title: 'Liga Educa',
-        subtitle: 'Patrocinadores',
+        title: 'Patrocinadores',
+        subtitle: 'Liga Educa',
         showBack: true,
       ),
       endDrawer: const LeagueMenuDrawer(),
@@ -31,7 +31,7 @@ class SponsorsPage extends StatelessWidget {
               background: LeagueCardBackground.accent,
               child: Row(
                 children: [
-                  const Icon(Icons.handshake, color: AppBrandColors.white),
+                  const Icon(Icons.handshake_rounded, color: AppBrandColors.white),
                   const SizedBox(width: 12),
                   Expanded(child: Text('Gracias por hacerlo posible', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppBrandColors.white))),
                 ],

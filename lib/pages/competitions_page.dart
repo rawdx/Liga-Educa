@@ -107,7 +107,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                           color: AppBrandColors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.calendar_month,
+                        child: const Icon(Icons.calendar_month_rounded,
                             color: AppBrandColors.white, size: 28),
                       ),
                       const SizedBox(width: 16),
@@ -115,7 +115,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Temporada 2024/25',
+                            Text('Temporada 2025/26',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -172,9 +172,9 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                 child: LeagueCard(
                                   onTap: () {
                                     final title =
-                                        Uri.encodeComponent('Liga Educa');
+                                        Uri.encodeComponent('${c.category} - ${c.groupLabel}');
                                     final subtitle = Uri.encodeComponent(
-                                        '${c.category} - ${c.groupLabel}');
+                                        'Competiciones');
                                     context.push(
                                         '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                   },
@@ -190,7 +190,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                                         .colorScheme
                                                         .onSurface)),
                                       ),
-                                      Icon(Icons.chevron_right,
+                                      Icon(Icons.chevron_right_rounded,
                                           color: AppBrandColors.green),
                                     ],
                                   ),
@@ -206,9 +206,9 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                               child: LeagueCard(
                                 onTap: () {
                                   final title =
-                                      Uri.encodeComponent('Liga Educa');
+                                      Uri.encodeComponent('${c.category} - ${c.seasonLabel}');
                                   final subtitle = Uri.encodeComponent(
-                                      '${c.category} - ${c.seasonLabel}');
+                                      'Competiciones');
                                   context.push(
                                       '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                 },
@@ -224,7 +224,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                                       .colorScheme
                                                       .onSurface)),
                                     ),
-                                    Icon(Icons.chevron_right,
+                                    Icon(Icons.chevron_right_rounded,
                                         color: AppBrandColors.green),
                                   ],
                                 ),
@@ -244,9 +244,9 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                         background: LeagueCardBackground.highlight,
                                         onTap: () {
                                           final title =
-                                              Uri.encodeComponent('Liga Educa');
+                                              Uri.encodeComponent('${c.category} - ${c.seasonLabel}');
                                           final subtitle = Uri.encodeComponent(
-                                              '${c.category} - ${c.seasonLabel}');
+                                              'Competiciones');
                                           context.push(
                                               '${AppRoutes.competition}/${c.id}?title=$title&subtitle=$subtitle');
                                         },
@@ -263,7 +263,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                                                   .colorScheme
                                                                   .onSurface)),
                                             ),
-                                            Icon(Icons.chevron_right,
+                                            Icon(Icons.chevron_right_rounded,
                                                 color: AppBrandColors.green),
                                           ],
                                         ),
@@ -348,7 +348,7 @@ class _CategoryAccordion extends StatelessWidget {
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOutCubic,
                     turns: expanded ? 0.5 : 0,
-                    child: Icon(Icons.expand_more, color: cs.onSurfaceVariant),
+                    child: Icon(Icons.expand_more_rounded, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -410,7 +410,7 @@ class _SeasonAccordion extends StatelessWidget {
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOutCubic,
                     turns: expanded ? 0.5 : 0,
-                    child: Icon(Icons.expand_more, color: cs.onSurfaceVariant),
+                    child: Icon(Icons.expand_more_rounded, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),

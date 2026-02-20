@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liga_educa/nav.dart';
+import 'package:liga_educa/services/favorites_service.dart';
 import 'package:liga_educa/theme.dart';
 
 /// Main entry point for the application
@@ -7,7 +8,9 @@ import 'package:liga_educa/theme.dart';
 /// This sets up:
 /// - go_router navigation
 /// - Material 3 theming with light/dark modes
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FavoritesService.instance.init();
   runApp(const MyApp());
 }
 

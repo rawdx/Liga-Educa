@@ -185,7 +185,9 @@ class _NewsPageState extends State<NewsPage> {
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
                     'No hay noticias en esta categoría',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.7),
+                        ),
                   ),
                 ),
               )
