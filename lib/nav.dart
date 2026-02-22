@@ -175,18 +175,16 @@ class AppRouter {
                 path: AppRoutes.profile,
                 name: 'profile',
                 pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
-                routes: [
-                  GoRoute(
-                    path: 'team',
-                    name: 'team',
-                    pageBuilder: (context, state) => const MaterialPage(child: TeamPage()),
-                  ),
-                  GoRoute(
-                    path: 'sponsors',
-                    name: 'sponsors',
-                    pageBuilder: (context, state) => const MaterialPage(child: SponsorsPage()),
-                  ),
-                ],
+              ),
+              GoRoute(
+                path: AppRoutes.team,
+                name: 'team',
+                pageBuilder: (context, state) => const MaterialPage(child: TeamPage()),
+              ),
+              GoRoute(
+                path: AppRoutes.sponsors,
+                name: 'sponsors',
+                pageBuilder: (context, state) => const MaterialPage(child: SponsorsPage()),
               ),
             ],
           ),
@@ -207,7 +205,7 @@ class AppRoutes {
   static const String favorites = '/favorites';
   static const String values = '/values';
   static const String profile = '/profile';
-  static const String team = '/profile/team';
+  static const String team = '/team';
   static const String teamDetail = '/competitions/team-detail';
-  static const String sponsors = '/profile/sponsors';
+  static const String sponsors = '/sponsors';
 }

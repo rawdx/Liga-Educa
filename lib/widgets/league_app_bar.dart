@@ -49,9 +49,7 @@ class LeagueAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           if (!showBack) ...[
             SvgPicture.asset(
-              isDark
-                  ? 'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL BLANCO.svg'
-                  : 'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL COLOR.svg',
+              'assets/images/logos/LOGO LIGA EDUCA HORIZONTAL COLOR.svg',
               height: 28,
             ),
             Container(
@@ -138,27 +136,19 @@ class LeagueMenuDrawer extends StatelessWidget {
               // Cabecera Rediseñada: Tipografía Minimalista y Profesional
               Container(
                 margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Row(
                   children: [
-                    // Logo Vertical en un contenedor estilo "Card"
-                    Container(
-                      height: 64,
-                      width: 64,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        border: Border.all(
-                          color: cs.outline.withValues(alpha: 0.1),
-                          width: 1,
-                        ),
-                      ),
+                    // Logo Vertical sin fondo
+                    SizedBox(
+                      height: 54,
+                      width: 54,
                       child: SvgPicture.asset(
                         'assets/images/logos/LOGO LIGA EDUCA VERTICAL COLOR.svg',
                         fit: BoxFit.contain,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,13 +177,12 @@ class LeagueMenuDrawer extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () => context.pop(),
-                      icon: Icon(Icons.close_rounded, color: cs.onSurface.withValues(alpha: 0.3), size: 22),
+                      icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant, size: 22),
                       visualDensity: VisualDensity.compact,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
               _DrawerItem(
                 icon: Icons.home_rounded,
                 label: 'Inicio',
@@ -250,7 +239,7 @@ class LeagueMenuDrawer extends StatelessWidget {
                 label: 'Equipo',
                 onTap: () {
                   context.pop();
-                  context.go(AppRoutes.team);
+                  context.push(AppRoutes.team);
                 },
               ),
               _DrawerItem(
@@ -258,7 +247,7 @@ class LeagueMenuDrawer extends StatelessWidget {
                 label: 'Patrocinadores',
                 onTap: () {
                   context.pop();
-                  context.go(AppRoutes.sponsors);
+                  context.push(AppRoutes.sponsors);
                 },
               ),
               const Spacer(),

@@ -100,7 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
             // Secciones
             LeagueCard(
               background: LeagueCardBackground.navy,
-              onTap: () => context.go(AppRoutes.team),
+              onTap: () => context.push(AppRoutes.team),
               child: Row(
                 children: [
                   const Icon(Icons.groups_rounded, color: AppBrandColors.green),
@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 12),
             LeagueCard(
               background: LeagueCardBackground.navy,
-              onTap: () => context.go(AppRoutes.sponsors),
+              onTap: () => context.push(AppRoutes.sponsors),
               child: Row(
                 children: [
                   const Icon(Icons.handshake_rounded, color: AppBrandColors.green),

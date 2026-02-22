@@ -117,19 +117,43 @@ class FavoritesPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppBrandColors.green.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.favorite_rounded,
-              size: 64,
-              color: AppBrandColors.green.withValues(alpha: 0.2),
-            ),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  color: AppBrandColors.green.withValues(alpha: 0.06),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppBrandColors.greenDark, AppBrandColors.green],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppBrandColors.green.withValues(alpha: 0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.favorite_rounded,
+                  size: 52,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Text(
             'Aún no tienes favoritos',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -150,38 +174,38 @@ class FavoritesPage extends StatelessWidget {
                   ),
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 36),
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color.fromARGB(255, 40, 158, 40), Color.fromARGB(255, 43, 176, 43)],
+                colors: [AppBrandColors.greenDark, AppBrandColors.green],
                 begin: Alignment.topLeft,
-                end: Alignment.center,
+                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(AppRadius.md),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
+                  color: AppBrandColors.green.withValues(alpha: 0.18),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: ElevatedButton.icon(
               onPressed: () => context.go(AppRoutes.competitions),
-              icon: const Icon(Icons.search, size: 18),
+              icon: const Icon(Icons.search, size: 20),
               label: const Text('EXPLORAR COMPETICIONES',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700, 
-                    letterSpacing: 0.2,
-                    fontSize: 13,
+                    fontWeight: FontWeight.w800, 
+                    letterSpacing: 0.5,
+                    fontSize: 14,
                   )),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.white,
                 shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                minimumSize: const Size(200, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                minimumSize: const Size(220, 52),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               ),
             ),

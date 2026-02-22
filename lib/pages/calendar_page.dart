@@ -142,7 +142,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
-                                    'Temporada 2024 - 2025',
+                                    'Temporada 2025 - 2026',
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
