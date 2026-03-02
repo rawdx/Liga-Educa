@@ -180,17 +180,6 @@
     ],
     "5": [
       {
-        "home": "CD San Roque Balompié con Nombre Muy Largo para Probar Desbordamiento",
-        "away": "CD Dani Triana Ar-Rabad También Largo",
-        "homeGoals": 5,
-        "awayGoals": 4,
-        "statusValue": 1,
-        "status": "FINAL",
-        "dateTime": "2025-10-31T17:00:00",
-        "stadium": "Estadio Municipal",
-        "referee": "Árbitro Principal"
-      },
-      {
         "home": "Real Betis Academy \"Bellerín\"",
         "away": "Camino Viejo CF",
         "homeGoals": 1,

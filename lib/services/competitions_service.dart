@@ -14,8 +14,9 @@ class CompetitionsService {
   static const String _matchesAssetPath = 'assets/data/matches.json';
 
   List<CompetitionSummary>? _cache;
-  Map<String, List<StandingRow>>? _teamsCache;
+  Map<String, Map<String, String?>>? _teamImagesCache; // competitionId -> {teamName -> image}
   Map<String, Map<String, List<MatchResult>>>? _matchesCache;
+
 
   Future<void> _loadMatches() async {
     if (_matchesCache != null) return;
@@ -76,96 +77,186 @@ class CompetitionsService {
     return fullName.substring(0, 3).toUpperCase();
   }
 
-  String? _getTeamImage(String fullName) {
-    if (_teamsCache == null) return null;
-    for (final list in _teamsCache!.values) {
-      for (final t in list) {
-        if (t.team == fullName) return t.image;
+  String? _getTeamImage(String fullName, [String? competitionId]) {
+    if (_teamImagesCache == null) return null;
+
+    // Si se especifica competitionId, buscar primero ahí
+    if (competitionId != null && _teamImagesCache!.containsKey(competitionId)) {
+      final compImages = _teamImagesCache![competitionId]!;
+      if (compImages.containsKey(fullName)) {
+        return compImages[fullName];
+      }
+    }
+
+    // Buscar en todas las competiciones
+    for (final compImages in _teamImagesCache!.values) {
+      if (compImages.containsKey(fullName)) {
+        return compImages[fullName];
       }
     }
     return null;
   }
 
+  /// Calcula la clasificación dinámicamente desde los partidos finalizados
+  List<StandingRow> _calculateStandings(String competitionId) {
+    final matchDays = _matchesCache?[competitionId] ?? {};
+    if (matchDays.isEmpty) return [];
+
+    // Acumulador de estadísticas por equipo
+    final Map<String, _TeamStats> stats = {};
+
+    // Recorrer todos los partidos finalizados
+    for (final matches in matchDays.values) {
+      for (final match in matches) {
+        // Solo contar partidos finalizados (statusValue == 1)
+        if (match.statusValue != 1) continue;
+
+        final homeName = match.home.name;
+        final awayName = match.away.name;
+        final homeGoals = match.homeGoals;
+        final awayGoals = match.awayGoals;
+
+        // Inicializar equipos si no existen
+        stats.putIfAbsent(homeName, () => _TeamStats());
+        stats.putIfAbsent(awayName, () => _TeamStats());
+
+        final homeStats = stats[homeName]!;
+        final awayStats = stats[awayName]!;
+
+        // Actualizar partidos jugados
+        homeStats.playedHome++;
+        awayStats.playedAway++;
+
+        // Actualizar goles
+        homeStats.gfHome += homeGoals;
+        homeStats.gaHome += awayGoals;
+        awayStats.gfAway += awayGoals;
+        awayStats.gaAway += homeGoals;
+
+        // Determinar resultado y actualizar victorias/empates/derrotas
+        if (homeGoals > awayGoals) {
+          // Victoria local
+          homeStats.wonHome++;
+          awayStats.lostAway++;
+        } else if (homeGoals < awayGoals) {
+          // Victoria visitante
+          homeStats.lostHome++;
+          awayStats.wonAway++;
+        } else {
+          // Empate
+          homeStats.drawnHome++;
+          awayStats.drawnAway++;
+        }
+      }
+    }
+
+    // Convertir a lista de StandingRow
+    final List<StandingRow> standings = stats.entries.map((entry) {
+      final name = entry.key;
+      final s = entry.value;
+
+      // Totales
+      final played = s.playedHome + s.playedAway;
+      final won = s.wonHome + s.wonAway;
+      final drawn = s.drawnHome + s.drawnAway;
+      final lost = s.lostHome + s.lostAway;
+      final gf = s.gfHome + s.gfAway;
+      final ga = s.gaHome + s.gaAway;
+      final points = (won * 3) + drawn;
+
+      return StandingRow(
+        position: 0, // Se asignará después de ordenar
+        team: name,
+        played: played,
+        points: points,
+        won: won,
+        drawn: drawn,
+        lost: lost,
+        gf: gf,
+        ga: ga,
+        image: _getTeamImage(name, competitionId),
+        wonHome: s.wonHome,
+        drawnHome: s.drawnHome,
+        lostHome: s.lostHome,
+        gfHome: s.gfHome,
+        gaHome: s.gaHome,
+        wonAway: s.wonAway,
+        drawnAway: s.drawnAway,
+        lostAway: s.lostAway,
+        gfAway: s.gfAway,
+        gaAway: s.gaAway,
+      );
+    }).toList();
+
+    // Ordenar por: puntos (desc), diferencia de goles (desc), goles a favor (desc)
+    standings.sort((a, b) {
+      final pointsDiff = b.points.compareTo(a.points);
+      if (pointsDiff != 0) return pointsDiff;
+
+      final gdDiff = (b.gf - b.ga).compareTo(a.gf - a.ga);
+      if (gdDiff != 0) return gdDiff;
+
+      return b.gf.compareTo(a.gf);
+    });
+
+    // Asignar posiciones
+    final List<StandingRow> result = [];
+    for (int i = 0; i < standings.length; i++) {
+      final s = standings[i];
+      result.add(StandingRow(
+        position: i + 1,
+        team: s.team,
+        played: s.played,
+        points: s.points,
+        won: s.won,
+        drawn: s.drawn,
+        lost: s.lost,
+        gf: s.gf,
+        ga: s.ga,
+        image: s.image,
+        wonHome: s.wonHome,
+        drawnHome: s.drawnHome,
+        lostHome: s.lostHome,
+        gfHome: s.gfHome,
+        gaHome: s.gaHome,
+        wonAway: s.wonAway,
+        drawnAway: s.drawnAway,
+        lostAway: s.lostAway,
+        gfAway: s.gfAway,
+        gaAway: s.gaAway,
+      ));
+    }
+
+    return result;
+  }
+
   Future<List<CompetitionSummary>> loadAll() async {
-    // Load teams data if not already loaded
-    if (_teamsCache == null) {
+    // Load team images (only name -> image mapping)
+    if (_teamImagesCache == null) {
       try {
         final rawTeams = await rootBundle.loadString(_teamsAssetPath);
         final decodedTeams = jsonDecode(rawTeams);
         if (decodedTeams is Map<String, dynamic>) {
-          _teamsCache = {};
-          decodedTeams.forEach((key, value) {
+          _teamImagesCache = {};
+          decodedTeams.forEach((compId, value) {
             if (value is List) {
-              _teamsCache![key] = value.map<StandingRow>((t) {
-                final played = (t['played'] as num?)?.toInt() ?? 0;
-                final points = (t['points'] as num?)?.toInt() ?? 0;
-                
-                // Simulate Stats
-                int won = points ~/ 3;
-                if (won > played) won = played;
-                
-                int remainingPoints = points - (won * 3);
-                int drawn = remainingPoints; // 1 pt per draw
-                if (won + drawn > played) drawn = played - won;
-                
-                int lost = played - won - drawn;
-                if (lost < 0) lost = 0;
-
-                // Simulate goals (pseudo-random based on name hash to be consistent)
-                final nameHash = (t['name'] ?? '').hashCode;
-                final gf = played > 0 ? (played * 1.5 + (nameHash % 10)).toInt() : 0;
-                final ga = played > 0 ? (played * 1.0 + (nameHash % 8)).toInt() : 0;
-
-                // Simulate Home/Away breakdown
-                final playedHome = (played / 2).ceil();
-                final playedAway = played - playedHome;
-                
-                final wonHome = (won / 2).ceil();
-                final wonAway = won - wonHome;
-                
-                final drawnHome = (drawn / 2).ceil();
-                final drawnAway = drawn - drawnHome;
-                
-                final lostHome = playedHome - wonHome - drawnHome;
-                final lostAway = playedAway - wonAway - drawnAway;
-
-                final gfHome = (gf / 2).ceil();
-                final gfAway = gf - gfHome;
-                final gaHome = (ga / 2).ceil();
-                final gaAway = ga - gaHome;
-
-                return StandingRow(
-                  position: 0,
-                  team: t['name'] ?? '',
-                  played: played,
-                  points: points,
-                  won: won,
-                  drawn: drawn,
-                  lost: lost,
-                  gf: gf,
-                  ga: ga,
-                  image: t['image'],
-                  wonHome: wonHome,
-                  drawnHome: drawnHome,
-                  lostHome: lostHome,
-                  gfHome: gfHome,
-                  gaHome: gaHome,
-                  wonAway: wonAway,
-                  drawnAway: drawnAway,
-                  lostAway: lostAway,
-                  gfAway: gfAway,
-                  gaAway: gaAway,
-                );
-              }).toList();
+              _teamImagesCache![compId] = {};
+              for (final t in value) {
+                final name = t['name'] as String? ?? '';
+                final image = t['image'] as String?;
+                if (name.isNotEmpty) {
+                  _teamImagesCache![compId]![name] = image;
+                }
+              }
             }
           });
         }
       } catch (e) {
         debugPrint('Failed to load teams JSON: $e');
-        _teamsCache = {};
+        _teamImagesCache = {};
       }
     }
-    
+
     // Load matches
     await _loadMatches();
 
@@ -220,15 +311,43 @@ class CompetitionsService {
     }
     final groupTitle = parts.isEmpty ? 'Competición' : parts.join('\n');
 
-    // Default current matchday
-    const currentMatchday = 2;
+    // Calculate current matchday dynamically
+    int currentMatchday = 1;
+    int maxMatchday = 1;
 
     // Get matches for current matchday from cache
     List<MatchResult> currentMatches = [];
     List<MatchResult> nextMatches = [];
-    
+
     if (_matchesCache != null && _matchesCache!.containsKey(id)) {
       final days = _matchesCache![id]!;
+
+      // Find max matchday and current matchday (last with finished matches)
+      final matchdayNumbers = days.keys
+          .map((k) => int.tryParse(k) ?? 0)
+          .where((d) => d > 0)
+          .toList()
+        ..sort();
+
+      if (matchdayNumbers.isNotEmpty) {
+        maxMatchday = matchdayNumbers.last;
+
+        // Find the last matchday with at least one finished match
+        for (final dayNum in matchdayNumbers.reversed) {
+          final matches = days[dayNum.toString()] ?? [];
+          final hasFinished = matches.any((m) => m.statusValue == 1);
+          if (hasFinished) {
+            currentMatchday = dayNum;
+            break;
+          }
+        }
+
+        // If no finished matches found, use the first matchday
+        if (currentMatchday == 1 && matchdayNumbers.isNotEmpty) {
+          currentMatchday = matchdayNumbers.first;
+        }
+      }
+
       if (days.containsKey(currentMatchday.toString())) {
         currentMatches = days[currentMatchday.toString()]!;
       }
@@ -237,32 +356,8 @@ class CompetitionsService {
       }
     }
 
-    // Get standings from cache and sort
-    List<StandingRow> currentStandings = [];
-    if (_teamsCache != null && _teamsCache!.containsKey(id)) {
-      // Create a copy to sort
-      final teams = List<StandingRow>.from(_teamsCache![id]!);
-      // Sort desc by points
-      teams.sort((a, b) => b.points.compareTo(a.points));
-      // Assign positions
-      for (int i = 0; i < teams.length; i++) {
-        currentStandings.add(StandingRow(
-          position: i + 1,
-          team: teams[i].team,
-          played: teams[i].played,
-          points: teams[i].points,
-          won: teams[i].won,
-          drawn: teams[i].drawn,
-          lost: teams[i].lost,
-          gf: teams[i].gf,
-          ga: teams[i].ga,
-          image: teams[i].image,
-        ));
-      }
-    } else {
-      // Fallback empty if no data found
-      currentStandings = [];
-    }
+    // Calculate standings dynamically from matches
+    final currentStandings = _calculateStandings(id);
 
     // Calculate streak dynamically from match data
     final streakData = _calculateStreak(id, currentStandings);
@@ -283,6 +378,7 @@ class CompetitionsService {
       subtitle: subtitleOverride ?? '',
       groupTitle: groupTitle,
       currentMatchday: currentMatchday,
+      maxMatchday: maxMatchday,
       results: currentMatches,
       standings: currentStandings,
       nextMatchday: nextMatches,
@@ -446,4 +542,20 @@ class CompetitionsService {
       Player(name: 'Lucas Romero', number: '21', position: 'Defensa'),
     ];
   }
+}
+
+/// Clase auxiliar para acumular estadísticas de equipo durante el cálculo
+class _TeamStats {
+  int playedHome = 0;
+  int playedAway = 0;
+  int wonHome = 0;
+  int wonAway = 0;
+  int drawnHome = 0;
+  int drawnAway = 0;
+  int lostHome = 0;
+  int lostAway = 0;
+  int gfHome = 0;
+  int gfAway = 0;
+  int gaHome = 0;
+  int gaAway = 0;
 }

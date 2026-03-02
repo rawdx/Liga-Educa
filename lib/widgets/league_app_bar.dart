@@ -27,8 +27,7 @@ class LeagueAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Determine the page title to display
     // If subtitle is provided, it's the specific page name (e.g. "Inicio", "Competiciones")
     // If not, fall back to title (e.g. "Liga Educa")

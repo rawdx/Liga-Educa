@@ -9,6 +9,8 @@ import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/match_item.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
+import 'package:liga_educa/widgets/standings_view.dart';
+import 'package:liga_educa/widgets/streak_view.dart';
 
 class CompetitionDetailPage extends StatefulWidget {
   final String competitionId;
@@ -25,8 +27,6 @@ class CompetitionDetailPage extends StatefulWidget {
 class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
   late CompetitionDetailData _data;
   late int _currentMatchday;
-  // Simple loading state if needed, though service is synchronous for cached data
-  // but getMatches is synchronous.
 
   @override
   void initState() {
@@ -40,13 +40,14 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
     setState(() {
       _currentMatchday += delta;
       if (_currentMatchday < 1) _currentMatchday = 1;
-      if (_currentMatchday > 30) _currentMatchday = 30;
+      if (_currentMatchday > _data.maxMatchday) {
+        _currentMatchday = _data.maxMatchday;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Fetch matches dynamically for the selected matchday
     final matches = CompetitionsService.instance
         .getMatches(widget.competitionId, _currentMatchday);
 
@@ -74,11 +75,11 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: const Icon(Icons.emoji_events_rounded,
+                      child: Icon(Icons.emoji_events_rounded,
                           color: AppBrandColors.white),
                     ),
                   ),
@@ -92,11 +93,11 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
             // Interactive Matchday Block
             _DetailBlock(
               header: _MatchdaySelector(
                 matchday: _currentMatchday,
+                maxMatchday: _data.maxMatchday,
                 onPrevious: () => _changeMatchday(-1),
                 onNext: () => _changeMatchday(1),
               ),
@@ -151,19 +152,23 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: AppBrandColors.green.withValues(alpha: 0.4),
+                                  color:
+                                      AppBrandColors.green.withValues(alpha: 0.4),
                                   width: 1.5,
                                 ),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.calendar_month, 
+                                  const Icon(Icons.calendar_month,
                                       size: 18, color: AppBrandColors.green),
                                   const SizedBox(width: 10),
                                   Text(
                                     'CALENDARIO COMPLETO',
-                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
                                           color: AppBrandColors.green,
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: 0.8,
@@ -177,7 +182,6 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
                       ],
                     ),
             ),
-            
             const SizedBox(height: 16),
             _DetailBlock(
               header: const _SectionTitle(
@@ -191,7 +195,12 @@ class _CompetitionDetailPageState extends State<CompetitionDetailPage> {
             const SizedBox(height: 16),
             _DetailBlock(
               header: const _SectionTitle(title: 'Racha', icon: Icons.whatshot),
-              content: StreakView(streak: _data.streak, standings: _data.standings),
+              content: StreakView(
+                streak: _data.streak,
+                standings: _data.standings,
+                competitionId: widget.competitionId,
+                competitionTitle: widget.title,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             const SponsorFooter(),
@@ -331,11 +340,13 @@ class _SectionTitle extends StatelessWidget {
 
 class _MatchdaySelector extends StatelessWidget {
   final int matchday;
+  final int maxMatchday;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
 
   const _MatchdaySelector({
     required this.matchday,
+    required this.maxMatchday,
     required this.onPrevious,
     required this.onNext,
   });
@@ -343,640 +354,48 @@ class _MatchdaySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final showPrevious = matchday > 1;
+    final showNext = matchday < maxMatchday;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        InkWell(
-          onTap: onPrevious,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Icon(Icons.chevron_left_rounded, color: cs.onSurfaceVariant),
-          ),
+        SizedBox(
+          width: 32,
+          child: showPrevious
+              ? InkWell(
+                  onTap: onPrevious,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child:
+                        Icon(Icons.chevron_left_rounded, color: cs.onSurfaceVariant),
+                  ),
+                )
+              : null,
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 8),
         Text('Jornada $matchday',
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
                 ?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w700)),
-        const SizedBox(width: 16),
-        InkWell(
-          onTap: onNext,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class StandingsView extends StatefulWidget {
-  final List<StandingRow> standings;
-  final String competitionId;
-  final String? competitionTitle;
-
-  const StandingsView({
-    super.key,
-    required this.standings,
-    required this.competitionId,
-    this.competitionTitle,
-  });
-
-  @override
-  State<StandingsView> createState() => _StandingsViewState();
-}
-
-class _StandingsViewState extends State<StandingsView> {
-  bool _expandTeamNames = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    const double rowHeight = 44.0; // Standard height
-    const double headerHeight = 32.0;
-
-    // Helper to build a cell
-    Widget buildCell(String text, double width, {bool bold = false, bool alignRight = true}) {
-      return Container(
-        width: width,
-        height: rowHeight,
-        alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(text,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: bold ? cs.onSurface : cs.onSurfaceVariant,
-                fontWeight: bold ? FontWeight.w700 : FontWeight.normal)),
-      );
-    }
-
-    // Helper for header cell
-    Widget buildHeader(String text, double width, {bool alignRight = true}) {
-      return Container(
-        width: width,
-        height: headerHeight,
-        alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
-      );
-    }
-
-        return LayoutBuilder(
-      builder: (context, constraints) {
-        final totalWidth = constraints.maxWidth;
-        // Expanded: 85% / 15%, Collapsed: 55% / 45%
-        final targetLeftWidth = totalWidth * (_expandTeamNames ? 0.85 : 0.55);
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ANIMATED LEFT SIDE (Pos + Team)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.fastOutSlowIn,
-              width: targetLeftWidth,
-              child: Stack(
-                children: [
-                  // Content
-                  Container(
-                    color: Theme.of(context).colorScheme.surface, // Opaque background
-                    child: Column(
-                      children: [
-                        // Header
-                        GestureDetector(
-                          onTap: () => setState(() => _expandTeamNames = !_expandTeamNames),
-                          behavior: HitTestBehavior.opaque,
-                          child: SizedBox(
-                            height: headerHeight,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                    width: 32,
-                                    child: Center(
-                                        child: Text('POS',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)))),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                    child: Row(
-                                      children: [
-                                        Text('EQUIPO',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
-                                        const SizedBox(width: 4),
-                                        // Visual cue
-                                        Icon(
-                                          _expandTeamNames ? Icons.compress_rounded : Icons.expand_rounded, 
-                                          size: 14, 
-                                          color: cs.onSurfaceVariant
-                                        ),
-                                      ],
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // Data
-                        ...widget.standings.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final r = entry.value;
-                          final bool isEven = index % 2 == 0;
-                          final rowColor = isEven ? Colors.transparent : cs.surfaceContainerHighest.withValues(alpha: 0.3);
-
-                          return Container(
-                              height: rowHeight,
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                              decoration: BoxDecoration(
-                                  color: rowColor,
-                                  // Only round the left side to merge with the scroll area
-                                  borderRadius: isEven 
-                                      ? null 
-                                      : const BorderRadius.horizontal(left: Radius.circular(AppRadius.sm))),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => setState(() => _expandTeamNames = !_expandTeamNames),
-                                    behavior: HitTestBehavior.opaque,
-                                    child: SizedBox(
-                                        width: 32,
-                                        child: Center(
-                                            child: Text('${r.position}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                        color: cs.onSurface,
-                                                        fontWeight: FontWeight.bold)))),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () {
-                                        final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId);
-                                        if (competitionId == null) return;
-                                        final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
-                                        context.push(
-                                          '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(r.team)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
-                                        );
-                                      },
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Row(
-                                        children: [
-                                          if (r.image != null) ...[
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(6),
-                                              child: Image.asset(r.image!,
-                                                  width: 20,
-                                                  height: 20,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (_, __, ___) =>
-                                                      const SizedBox.shrink()),
-                                            ),
-                                            const SizedBox(width: 8),
-                                          ],
-                                          Expanded(
-                                              child: Text(r.team,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                        color: cs.onSurface,
-                                                        fontWeight: FontWeight.w600,
-                                                      ),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                        })
-                      ],
-                    ),
-                  ),
-                  
-                  // Shadow Overlay (Right Edge)
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    width: 6, // Width of the shadow gradient
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.08), // Very subtle shadow
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // RIGHT SIDE (Stats) - Fills remaining space
-            Expanded(
-              child: Stack(
-                children: [
-                  // Background Layer (Fixed to viewport)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: headerHeight), // Spacer for header
-                      ...widget.standings.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final bool isEven = index % 2 == 0;
-                        final rowColor = isEven
-                            ? Colors.transparent
-                            : cs.surfaceContainerHighest.withValues(alpha: 0.3);
-
-                        return Container(
-                          height: rowHeight,
-                          margin: const EdgeInsets.symmetric(vertical: 2),
-                          decoration: BoxDecoration(
-                            color: rowColor,
-                            // Round the right side to match the viewport edge
-                            borderRadius: isEven
-                                ? null
-                                : const BorderRadius.horizontal(
-                                    right: Radius.circular(AppRadius.sm)),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  // Content Layer (Scrollable)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header
-                        Row(
-                          children: [
-                            buildHeader('PTS', 40),
-                            buildHeader('PJ', 36),
-                            buildHeader('G', 36),
-                            buildHeader('E', 36),
-                            buildHeader('P', 36),
-                            buildHeader('GF', 36),
-                            buildHeader('GC', 36),
-                            buildHeader('DG', 36), // Goal Difference
-                          ],
-                        ),
-                        // Data
-                        ...widget.standings.asMap().entries.map((entry) {
-                          final r = entry.value;
-                          return Container(
-                            height: rowHeight,
-                            margin: const EdgeInsets.symmetric(vertical: 2),
-                            // No decoration here, background is handled by the layer below
-                            child: Row(
-                              children: [
-                                buildCell('${r.points}', 40, bold: true),
-                                buildCell('${r.played}', 36),
-                                buildCell('${r.won}', 36),
-                                buildCell('${r.drawn}', 36),
-                                buildCell('${r.lost}', 36),
-                                buildCell('${r.gf}', 36),
-                                buildCell('${r.ga}', 36),
-                                buildCell('${r.gf - r.ga}', 36),
-                              ],
-                            ),
-                          );
-                        })
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      }
-    );
-  }
-}
-
-class StreakView extends StatelessWidget {
-  final Map<String, List<String>> streak;
-  final List<StandingRow>? standings;
-  const StreakView({super.key, required this.streak, this.standings});
-
-  String? _getTeamImage(String teamName) {
-    if (standings == null) return null;
-    for (final s in standings!) {
-      if (s.team == teamName) return s.image;
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    const double rowHeight = 44.0;
-    const double headerHeight = 32.0;
-
-    if (streak.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Center(
-          child: Text(
-            'No hay datos de racha disponibles.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final entries = streak.entries.toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Table-like header to match Standings
+        const SizedBox(width: 8),
         SizedBox(
-          height: headerHeight,
-          child: Row(
-            children: [
-              const SizedBox(width: 4),
-              Text(
-                'EQUIPO',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Text(
-                  'RACHA',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        // Team streaks with alternating backgrounds
-        ...entries.asMap().entries.map((entry) {
-          final e = entry.value;
-          final teamImage = _getTeamImage(e.key);
-          return InkWell(
-            onTap: () {
-              final competitionId = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.competitionId);
-              if (competitionId == null) return;
-              final competitionTitle = (context.findAncestorStateOfType<_CompetitionDetailPageState>()?.widget.title);
-              context.push(
-                '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(e.key)}&competitionId=$competitionId${competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(competitionTitle)}' : ''}',
-              );
-            },
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Container(
-              height: rowHeight,
-              margin: const EdgeInsets.symmetric(vertical: 1),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Row(
-                children: [
-              _TeamBadge(teamName: e.key, image: teamImage, size: 24),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  e.key,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: e.value.isEmpty
-                    ? [
-                        Text(
-                          '—',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: cs.onSurfaceVariant,
-                              ),
-                        ),
-                      ]
-                    : e.value
-                        .take(5)
-                        .map((x) => Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: _StreakDot(value: x)))
-                        .toList(growable: false),
-              ),
-              const SizedBox(width: 4),
-            ],
-          ),
-        ),
-      );
-    }),
-    const SizedBox(height: 20),
-    Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        children: [
-          Wrap(
-            spacing: 16,
-            runSpacing: 10,
-            alignment: WrapAlignment.center,
-            children: const [
-              _StreakLegendItem(code: 'G', label: 'Ganado'),
-              _StreakLegendItem(code: 'E', label: 'Empate'),
-              _StreakLegendItem(code: 'P', label: 'Perdido'),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 16,
-            runSpacing: 10,
-            alignment: WrapAlignment.center,
-            children: const [
-              _StreakLegendItem(code: 'D', label: 'Descansa'),
-              _StreakLegendItem(code: 'S', label: 'Suspendido'),
-              _StreakLegendItem(code: 'A', label: 'Aplazado'),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ],
-);
-}
-}
-
-class _TeamBadge extends StatelessWidget {
-  final String teamName;
-  final String? image;
-  final double size;
-  const _TeamBadge({required this.teamName, this.image, this.size = 30});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    if (image != null) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: Image.asset(
-            image!,
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildFallback(context, cs),
-          ),
-        ),
-      );
-    }
-    return _buildFallback(context, cs);
-  }
-
-  Widget _buildFallback(BuildContext context, ColorScheme cs) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        teamName.isNotEmpty ? teamName[0].toUpperCase() : '?',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: cs.onSurface,
-          fontWeight: FontWeight.bold,
-          fontSize: size * 0.4,
-        ),
-      ),
-    );
-  }
-}
-
-class _StreakLegendItem extends StatelessWidget {
-  final String code;
-  final String label;
-  const _StreakLegendItem({required this.code, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    
-    String dotCode = code;
-    if (code == 'G') dotCode = 'W';
-    if (code == 'E') dotCode = 'D';
-    if (code == 'P') dotCode = 'L';
-    if (code == 'D') dotCode = 'R';
-    // 'A' maps directly to 'A' in _StreakDot for Aplazado
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _StreakDot(value: dotCode, small: true),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: cs.onSurface.withValues(alpha: 0.8),
-            fontWeight: FontWeight.w600,
-            fontSize: 11,
-          ),
+          width: 32,
+          child: showNext
+              ? InkWell(
+                  onTap: onNext,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(Icons.chevron_right_rounded,
+                        color: cs.onSurfaceVariant),
+                  ),
+                )
+              : null,
         ),
       ],
-    );
-  }
-}
-
-class _StreakDot extends StatelessWidget {
-  final String value;
-  final bool small;
-  const _StreakDot({required this.value, this.small = false});
-
-  @override
-  Widget build(BuildContext context) {
-    // Balanced color palette with glass style
-    final (String label, Color color) = switch (value) {
-      'W' => ('G', const Color.fromARGB(255, 7, 226, 87)), // G for Ganado (Green)
-      'D' => ('E', const Color(0xFFF59E0B)), // E for Empate (Amber)
-      'L' => ('P', const Color.fromARGB(255, 242, 63, 63)), // P for Perdido (Red)
-      'R' => ('D', const Color.fromARGB(255, 193, 193, 193)), // D for Descansa (Grey)
-      'S' => ('S', const Color(0xFF334155)), // S for Suspendido (Dark)
-      'A' => ('A', Colors.indigoAccent), // A for Aplazado (Indigo)
-      _ => ('-', const Color(0xFF64748B)),
-    };
-
-    final double size = small ? 18 : 26;
-    final double fontSize = small ? 9 : 11;
-    final bool isSuspended = value == 'S';
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: isSuspended ? 0.35 : 0.2),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(
-          color: isSuspended 
-            ? Colors.white.withValues(alpha: 0.35) 
-            : color.withValues(alpha: 0.6),
-          width: 1.2,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: isSuspended && Theme.of(context).brightness == Brightness.dark 
-            ? Colors.white.withValues(alpha: 0.8) 
-            : color,
-          fontWeight: FontWeight.w900,
-          fontSize: fontSize,
-          height: 1,
-        ),
-      ),
     );
   }
 }

@@ -139,7 +139,7 @@ class FavoritesPage extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppBrandColors.green.withValues(alpha: 0.2),
+                      color: AppBrandColors.green.withValues(alpha: 0.15),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -193,19 +193,19 @@ class FavoritesPage extends StatelessWidget {
             ),
             child: ElevatedButton.icon(
               onPressed: () => context.go(AppRoutes.competitions),
-              icon: const Icon(Icons.search, size: 20),
+              icon: const Icon(Icons.search, size: 18),
               label: const Text('EXPLORAR COMPETICIONES',
                   style: TextStyle(
-                    fontWeight: FontWeight.w800, 
+                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.5,
-                    fontSize: 14,
+                    fontSize: 13,
                   )),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.white,
                 shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                minimumSize: const Size(220, 52),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                minimumSize: const Size(200, 44),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               ),
             ),

@@ -113,6 +113,7 @@ class CompetitionDetailData {
   final String subtitle;
   final String groupTitle;
   final int currentMatchday;
+  final int maxMatchday;
   final List<MatchResult> results;
   final List<StandingRow> standings;
   final List<MatchResult> nextMatchday;
@@ -124,6 +125,7 @@ class CompetitionDetailData {
     required this.subtitle,
     required this.groupTitle,
     required this.currentMatchday,
+    required this.maxMatchday,
     required this.results,
     required this.standings,
     required this.nextMatchday,
