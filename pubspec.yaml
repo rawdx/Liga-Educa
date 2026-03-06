@@ -16,6 +16,8 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_svg: ^2.2.3
   shared_preferences: ^2.5.4
+  open_filex: ^4.7.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -47,10 +49,12 @@ flutter:
     - assets/images/sponsor.gif
     - assets/images/logos/
     - assets/images/teams/
+    - assets/docs/
     - assets/data/phrases.json
     - assets/data/competitions.json
     - assets/data/teams.json
     - assets/data/matches.json
+    - assets/data/news.json
 
 flutter_launcher_icons:
   android: true

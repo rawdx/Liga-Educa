@@ -9,7 +9,7 @@ class JoinUsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return LeagueCard(
       background: LeagueCardBackground.navy,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           Text(

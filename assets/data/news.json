@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "imagePath": "assets/images/teams/betis.jpg",
+    "tag": "Destacado",
+    "timeAgo": "Hace 2 horas",
+    "title": "FC Barcelona B se proclama campeón de la temporada 2024",
+    "description": "El equipo azulgrana consigue el título tras una emocionante final contra Real Betis Féminas con un resultado de 3-2.",
+    "author": "Juan Pérez",
+    "content": "El FC Barcelona B ha logrado alzarse con el trofeo de la temporada 2024 en una final que quedará para el recuerdo. El encuentro, disputado con gran intensidad desde el primer minuto, mostró el alto nivel competitivo de la Liga Educa.\n\nEl Real Betis Féminas no lo puso fácil, adelantándose en el marcador mediada la primera parte. Sin embargo, la reacción del conjunto azulgrana fue inmediata, logrando empatar antes del descanso.\n\nLa segunda mitad fue un intercambio de golpes que culminó con el definitivo 3-2 a favor del Barcelona B en los instantes finales. El cuerpo técnico destacó no solo el resultado, sino el comportamiento ejemplar de ambos equipos, cumpliendo con los valores de respeto y deportividad que promueve la liga."
+  },
+  {
+    "id": "2",
+    "imagePath": "assets/images/teams/adlosmares.jpg",
+    "tag": "Formación",
+    "timeAgo": "Hace 5 horas",
+    "title": "Jornada educativa: respeto en el campo",
+    "description": "Cómo el juego limpio mejora la convivencia y fortalece los valores deportivos en las nuevas generaciones.",
+    "author": "María García",
+    "content": "La última jornada de formación organizada por la Liga Educa se centró en un pilar fundamental: el respeto. Entrenadores, jugadores y familias participaron en talleres dinámicos donde se exploraron situaciones reales de juego y cómo afrontarlas desde la deportividad.\n\n'El resultado es secundario, lo que importa es la persona que estamos formando', comentó una de las ponentes. La sesión incluyó actividades prácticas donde los jóvenes jugadores pudieron experimentar el papel del árbitro, fomentando la empatía y la comprensión de las reglas del juego.\n\nEstas jornadas son parte del compromiso de la liga por ofrecer una experiencia deportiva integral que trascienda lo meramente físico."
+  },
+  {
+    "id": "3",
+    "imagePath": "assets/images/teams/huevarcf.jpg",
+    "tag": "Entrenamiento",
+    "timeAgo": "Hace 1 día",
+    "title": "Entrenamiento de valores y trabajo en equipo",
+    "description": "3 dinámicas esenciales para reforzar la cohesión del grupo y el compañerismo dentro y fuera del campo.",
+    "author": "Carlos Ruiz",
+    "content": "El trabajo en equipo es la base de cualquier éxito deportivo. En este artículo, exploramos tres dinámicas sencillas pero potentes que los entrenadores pueden implementar hoy mismo.\n\n1. El círculo de confianza: Una actividad para mejorar la comunicación no verbal.\n2. Resolución conjunta: Desafíos tácticos que requieren la participación de todos los miembros del equipo.\n3. El relevo de valores: Una competición donde se premia tanto la velocidad como la ayuda al compañero.\n\nImplementar estas técnicas ayuda a reducir el conflicto y aumenta la motivación de los jugadores, creando un ambiente de aprendizaje positivo y seguro."
+  }
+]

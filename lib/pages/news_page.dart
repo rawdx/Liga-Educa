@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liga_educa/drawer_manager.dart';
+import 'package:liga_educa/models/news.dart';
 import 'package:liga_educa/nav.dart';
+import 'package:liga_educa/services/news_service.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
@@ -18,37 +20,12 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String? _selectedCategory;
-
-  static const _allItems = [
-    NewsItemData(
-      imagePath: 'assets/images/teams/betis.jpg',
-      tag: 'Destacado',
-      timeAgo: 'Hace 2 horas',
-      title: 'FC Barcelona B se proclama campeón de la temporada 2024',
-      description: 'El equipo azulgrana consigue el título tras una emocionante final contra Real Betis Féminas con un resultado de 3-2.',
-      author: 'Juan Pérez',
-    ),
-    NewsItemData(
-      imagePath: 'assets/images/teams/adlosmares.jpg',
-      tag: 'Formación',
-      timeAgo: 'Hace 5 horas',
-      title: 'Jornada educativa: respeto en el campo',
-      description: 'Cómo el juego limpio mejora la convivencia y fortalece los valores deportivos en las nuevas generaciones.',
-      author: 'María García',
-    ),
-    NewsItemData(
-      imagePath: 'assets/images/teams/huevarcf.jpg',
-      tag: 'Entrenamiento',
-      timeAgo: 'Hace 1 día',
-      title: 'Entrenamiento de valores y trabajo en equipo',
-      description: '3 dinámicas esenciales para reforzar la cohesión del grupo y el compañerismo dentro y fuera del campo.',
-      author: 'Carlos Ruiz',
-    ),
-  ];
+  List<NewsItem> _allItems = [];
+  bool _isLoading = true;
 
   List<String> get _categories => _allItems.map((e) => e.tag).toSet().toList();
 
-  List<NewsItemData> get _filteredItems => _selectedCategory == null
+  List<NewsItem> get _filteredItems => _selectedCategory == null
       ? _allItems
       : _allItems.where((e) => e.tag == _selectedCategory).toList();
 
@@ -56,6 +33,17 @@ class _NewsPageState extends State<NewsPage> {
   void initState() {
     super.initState();
     drawerManager.addListener(_closeDrawerListener);
+    _loadNews();
+  }
+
+  Future<void> _loadNews() async {
+    final news = await NewsService.instance.getAllNews();
+    if (mounted) {
+      setState(() {
+        _allItems = news;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -80,132 +68,134 @@ class _NewsPageState extends State<NewsPage> {
       appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Noticias'),
       endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
-          children: [
-            // Bloque de Actualidad Estilo Premium (Dashboad Style)
-            LeagueCard(
-              background: LeagueCardBackground.navy,
-              padding: EdgeInsets.zero,
-              child: Stack(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppBrandColors.green))
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
                 children: [
-                  // Icono decorativo de fondo (Consistente con Home/Competiciones)
-                  Positioned(
-                    right: -10,
-                    top: -10,
-                    child: Icon(
-                      Icons.newspaper_rounded,
-                      size: 100,
-                      color: Colors.white.withValues(alpha: 0.04),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
+                  // Bloque de Actualidad Estilo Premium (Dashboad Style)
+                  LeagueCard(
+                    background: LeagueCardBackground.navy,
+                    padding: EdgeInsets.zero,
+                    child: Stack(
+                      children: [
+                        // Icono decorativo de fondo (Consistente con Home/Competiciones)
+                        Positioned(
+                          right: -10,
+                          top: -10,
+                          child: Icon(
+                            Icons.newspaper_rounded,
+                            size: 100,
+                            color: Colors.white.withValues(alpha: 0.04),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                gradient: const LinearGradient(
-                                  colors: [AppBrandColors.greenDark, AppBrandColors.green],
-                                ),
-                              ),
-                              child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 24),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
                                 children: [
-                                  Text(
-                                    'Actualidad',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: cs.onSurface,
-                                        ),
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      gradient: const LinearGradient(
+                                        colors: [AppBrandColors.greenDark, AppBrandColors.green],
+                                      ),
+                                    ),
+                                    child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 24),
                                   ),
-                                  Text(
-                                    'Noticias y formación',
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                          color: cs.onSurfaceVariant,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Actualidad',
+                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: cs.onSurface,
+                                              ),
                                         ),
+                                        Text(
+                                          'Noticias y formación',
+                                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                                color: cs.onSurfaceVariant,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
+                            
+                            // Filtros integrados
+                            Container(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Row(
+                                  children: [
+                                    _CategoryChip(
+                                      label: 'Todas',
+                                      isSelected: _selectedCategory == null,
+                                      onSelected: (selected) => setState(() => _selectedCategory = null),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ..._categories.map((category) => Padding(
+                                      padding: const EdgeInsets.only(right: 8.0),
+                                      child: _CategoryChip(
+                                        label: category,
+                                        isSelected: _selectedCategory == category,
+                                        onSelected: (selected) => setState(() => _selectedCategory = selected ? category : null),
+                                      ),
+                                    )),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      
-                      // Filtros integrados
-                      Container(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              _CategoryChip(
-                                label: 'Todas',
-                                isSelected: _selectedCategory == null,
-                                onSelected: (selected) => setState(() => _selectedCategory = null),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+
+                  // Lista de Noticias
+                  if (items.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Text(
+                          'No hay noticias en esta categoría',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.7),
                               ),
-                              const SizedBox(width: 8),
-                              ..._categories.map((category) => Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: _CategoryChip(
-                                  label: category,
-                                  isSelected: _selectedCategory == category,
-                                  onSelected: (selected) => setState(() => _selectedCategory = selected ? category : null),
-                                ),
-                              )),
-                            ],
-                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                  else
+                    ...items.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: NewsCard(
+                          item: item,
+                          onTap: () => context.go(AppRoutes.newsDetail, extra: item),
+                        ),
+                      ),
+                    ),
+                  
+                  const SizedBox(height: 10),
+                  const SponsorFooter(),
                 ],
               ),
-            ),
-            
-            const SizedBox(height: 24),
-
-            // Lista de Noticias
-            if (items.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    'No hay noticias en esta categoría',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.7),
-                        ),
-                  ),
-                ),
-              )
-            else
-              ...items.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: NewsCard(
-                    item: item,
-                    onTap: () => context.go(AppRoutes.newsDetail, extra: item),
-                  ),
-                ),
-              ),
-            
-            const SizedBox(height: 10),
-            const SponsorFooter(),
-          ],
-        ),
       ),
     );
   }

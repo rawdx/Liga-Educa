@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liga_educa/drawer_manager.dart'; // Added import
+import 'package:liga_educa/drawer_manager.dart';
+import 'package:liga_educa/models/news.dart';
 import 'package:liga_educa/models/phrase.dart';
 import 'package:liga_educa/nav.dart';
+import 'package:liga_educa/services/news_service.dart';
 import 'package:liga_educa/services/phrases_service.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
@@ -11,6 +13,7 @@ import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/news_card.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
 import 'package:liga_educa/widgets/join_us_section.dart';
+import 'package:liga_educa/widgets/documentation_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,21 +23,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>(); // Added GlobalKey
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _phrases = PhrasesService.instance;
   Phrase? _phrase;
   bool _loadingPhrase = true;
+  NewsItem? _featuredNews;
+  bool _loadingNews = true;
 
   @override
   void initState() {
     super.initState();
     _loadPhrase();
-    drawerManager.addListener(_closeDrawerListener); // Added listener
+    _loadFeaturedNews();
+    drawerManager.addListener(_closeDrawerListener);
   }
 
   @override
   void dispose() {
-    drawerManager.removeListener(_closeDrawerListener); // Removed listener
+    drawerManager.removeListener(_closeDrawerListener);
     super.dispose();
   }
 
@@ -56,21 +62,21 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _loadFeaturedNews() async {
+    final news = await NewsService.instance.getAllNews();
+    if (!mounted) return;
+    setState(() {
+      if (news.isNotEmpty) {
+        _featuredNews = news.first;
+      }
+      _loadingNews = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Featured news data
-    const featuredNews = NewsItemData(
-      imagePath: 'assets/images/teams/betis.jpg',
-      tag: 'Destacado',
-      timeAgo: 'Hace 2 horas',
-      title: 'FC Barcelona B se proclama campeón de la temporada 2024',
-      description:
-          'El equipo azulgrana consigue el título tras una emocionante final contra Real Betis Féminas con un resultado de 3-2.',
-      author: 'Juan Pérez',
-    );
-
     return Scaffold(
-      key: _scaffoldKey, // Assigned key
+      key: _scaffoldKey,
       appBar: const LeagueAppBar(title: 'Liga Educa', subtitle: 'Inicio'),
       endDrawer: const LeagueMenuDrawer(),
       body: SafeArea(
@@ -274,10 +280,16 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: AppSpacing.lg),
 
             // News Section
-            NewsCard(
-              item: featuredNews,
-              onTap: () => context.go(AppRoutes.homeNewsDetail, extra: featuredNews),
-            ),
+            if (_loadingNews)
+              const Center(child: CircularProgressIndicator(color: AppBrandColors.green))
+            else if (_featuredNews != null)
+              NewsCard(
+                item: _featuredNews!,
+                onTap: () => context.go(AppRoutes.homeNewsDetail, extra: _featuredNews),
+              ),
+
+            const SizedBox(height: AppSpacing.lg),
+            const DocumentationSection(),
 
             const SizedBox(height: AppSpacing.lg),
             const JoinUsSection(),

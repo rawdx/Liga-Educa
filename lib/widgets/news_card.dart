@@ -1,29 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:liga_educa/models/news.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_card.dart';
 
-class NewsItemData {
-  final String imagePath;
-  final String tag;
-  final String timeAgo;
-  final String title;
-  final String description;
-  final String author;
-  final String? content;
-
-  const NewsItemData({
-    required this.imagePath,
-    required this.tag,
-    required this.timeAgo,
-    required this.title,
-    required this.description,
-    required this.author,
-    this.content,
-  });
-}
-
 class NewsCard extends StatelessWidget {
-  final NewsItemData item;
+  final NewsItem item;
   final VoidCallback? onTap;
 
   const NewsCard({

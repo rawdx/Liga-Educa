@@ -61,7 +61,7 @@ class StreakView extends StatelessWidget {
               Text(
                 'EQUIPO',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                      color: cs.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
                     ),
               ),

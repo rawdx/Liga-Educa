@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:liga_educa/models/news.dart';
 import 'package:liga_educa/pages/competition_detail_page.dart';
 import 'package:liga_educa/pages/competitions_page.dart';
 import 'package:liga_educa/pages/home_page.dart';
@@ -13,7 +14,6 @@ import 'package:liga_educa/pages/sponsors_page.dart';
 import 'package:liga_educa/pages/team_page.dart';
 import 'package:liga_educa/pages/values_page.dart';
 import 'package:liga_educa/widgets/app_shell.dart';
-import 'package:liga_educa/widgets/news_card.dart';
 
 /// GoRouter configuration for Liga Educa.
 ///
@@ -50,7 +50,7 @@ class AppRouter {
                     path: 'news-detail',
                     name: 'homeNewsDetail',
                     pageBuilder: (context, state) {
-                      final newsItem = state.extra as NewsItemData;
+                      final newsItem = state.extra as NewsItem;
                       return CustomTransitionPage(
                         child: NewsDetailPage(newsItem: newsItem),
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -131,7 +131,7 @@ class AppRouter {
                     path: 'detail',
                     name: 'newsDetail',
                     pageBuilder: (context, state) {
-                      final newsItem = state.extra as NewsItemData;
+                      final newsItem = state.extra as NewsItem;
                       return CustomTransitionPage(
                         child: NewsDetailPage(newsItem: newsItem),
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {

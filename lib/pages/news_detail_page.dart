@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:liga_educa/models/news.dart';
 import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
-import 'package:liga_educa/widgets/news_card.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
 
 class NewsDetailPage extends StatelessWidget {
-  final NewsItemData newsItem;
+  final NewsItem newsItem;
 
   const NewsDetailPage({super.key, required this.newsItem});
 
