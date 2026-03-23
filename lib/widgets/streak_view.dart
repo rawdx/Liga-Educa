@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:liga_educa/models/competition_models.dart';
 import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
+import 'package:liga_educa/widgets/team_logo.dart';
 
 /// Widget para mostrar la racha de resultados de los equipos.
 class StreakView extends StatelessWidget {
@@ -69,9 +70,9 @@ class StreakView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: Text(
-                  'RACHA',
+                  'ÚLTIMOS PARTIDOS',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                        color: cs.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -100,7 +101,7 @@ class StreakView extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  TeamBadge(teamName: e.key, image: teamImage, size: 24),
+                  TeamLogo(image: teamImage, size: 24, padding: 2, borderRadius: 6),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -175,66 +176,6 @@ class StreakView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Badge circular con imagen o inicial del equipo.
-class TeamBadge extends StatelessWidget {
-  final String teamName;
-  final String? image;
-  final double size;
-
-  const TeamBadge({
-    super.key,
-    required this.teamName,
-    this.image,
-    this.size = 30,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    if (image != null) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: Image.asset(
-            image!,
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildFallback(context, cs),
-          ),
-        ),
-      );
-    }
-    return _buildFallback(context, cs);
-  }
-
-  Widget _buildFallback(BuildContext context, ColorScheme cs) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        teamName.isNotEmpty ? teamName[0].toUpperCase() : '?',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: cs.onSurface,
-              fontWeight: FontWeight.bold,
-              fontSize: size * 0.4,
-            ),
-      ),
     );
   }
 }

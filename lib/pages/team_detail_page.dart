@@ -11,6 +11,7 @@ import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/match_item.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
 import 'package:liga_educa/widgets/standings_view.dart';
+import 'package:liga_educa/widgets/team_logo.dart';
 
 class TeamDetailPage extends StatefulWidget {
   final String teamName;
@@ -53,6 +54,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
         .getTeamMatches(widget.competitionId, widget.teamName);
     _coaches = CompetitionsService.instance.getTeamCoaches(widget.teamName);
     _players = CompetitionsService.instance.getTeamPlayers(widget.teamName);
+
+    // Ensure our favorite has the latest image/id from the API
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FavoritesService.instance.refreshWithLatestData(
+          _competitionDetail.standings, widget.competitionId);
+    });
   }
 
   @override
@@ -244,20 +251,11 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: ClipOval(
-                                    child: _stats?.image != null
-                                        ? Image.asset(_stats!.image!,
-                                            width: 90,
-                                            height: 90,
-                                            fit: BoxFit.contain)
-                                        : const CircleAvatar(
-                                            radius: 45,
-                                            backgroundColor:
-                                                AppBrandColors.white,
-                                            child: Icon(Icons.shield,
-                                                size: 45,
-                                                color: AppBrandColors.navy900),
-                                          ),
+                                  child: TeamLogo(
+                                    image: _stats?.image,
+                                    size: 90,
+                                    padding: 8,
+                                    borderRadius: 45,
                                   ),
                                 ),
                               ),
@@ -1004,6 +1002,70 @@ class _TeamMatchItem extends StatelessWidget {
               ScorePill(text: '${match.awayGoals}'),
             ],
           ),
+          if ((match.stadium != null && match.stadium!.isNotEmpty) ||
+              (match.referee != null && match.referee!.isNotEmpty)) ...[
+            const SizedBox(height: 14),
+            Divider(
+                height: 1, color: AppBrandColors.gray600.withValues(alpha: 0.4)),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.location_on,
+                          size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                            (match.stadium != null && match.stadium!.isNotEmpty)
+                                ? match.stadium!
+                                : 'Por definir',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                    color: (match.stadium != null &&
+                                            match.stadium!.isNotEmpty)
+                                        ? AppBrandColors.green
+                                        : cs.onSurface.withValues(alpha: 0.7)),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                            (match.referee != null && match.referee!.isNotEmpty)
+                                ? match.referee!
+                                : 'Por designar',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                    color:
+                                        cs.onSurface.withValues(alpha: 0.7)),
+                            textAlign: TextAlign.right,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(Icons.sports,
+                          size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

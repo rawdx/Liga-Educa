@@ -26,23 +26,59 @@ class FavoritesService extends ChangeNotifier {
     }
   }
 
-  bool isFavorite(String teamName, String competitionId) {
-    return _favorites.any((f) => f.teamName == teamName && f.competitionId == competitionId);
+  /// Refreshes favorite team names and images using current standings data.
+  /// This ensures that if a name was corrected in the API, the favorite is updated
+  /// instead of being broken.
+  void refreshWithLatestData(List<StandingRow> standings, String competitionId) {
+    bool changed = false;
+    for (int i = 0; i < _favorites.length; i++) {
+      final fav = _favorites[i];
+      if (fav.competitionId == competitionId) {
+        // Try to find the team in latest standings (maybe the name changed slightly)
+        // Since we don't have teamId, we can only do this if we are SURE it's the same team.
+        // For now, we update the image if it's the same name.
+        try {
+          final latest = standings.firstWhere((s) => s.team == fav.teamName);
+          if (latest.image != fav.image) {
+            _favorites[i] = FavoriteTeam(
+              teamName: fav.teamName,
+              competitionId: fav.competitionId,
+              competitionTitle: fav.competitionTitle,
+              image: latest.image,
+              teamId: latest.teamId ?? fav.teamId,
+            );
+            changed = true;
+          }
+        } catch (_) {
+          // Team name might have changed in API, but without a stable teamId 
+          // we cannot automatically migrate the name safely yet.
+        }
+      }
+    }
+    if (changed) {
+      _save();
+      notifyListeners();
+    }
   }
 
-  Future<void> toggleFavorite(FavoriteTeam team) async {
-    final index = _favorites.indexWhere(
-      (f) => f.teamName == team.teamName && f.competitionId == team.competitionId
-    );
+  bool isFavorite(String teamName, String competitionId, [String? teamId]) {
+    return _favorites.any((f) =>
+        (teamId != null && f.teamId == teamId) ||
+        (f.teamName == teamName && f.competitionId == competitionId));
+  }
+
+  void toggleFavorite(FavoriteTeam team) {
+    final index = _favorites.indexWhere((f) =>
+        (team.teamId != null && f.teamId == team.teamId) ||
+        (f.teamName == team.teamName && f.competitionId == team.competitionId));
 
     if (index >= 0) {
       _favorites.removeAt(index);
     } else {
       _favorites.add(team);
     }
-
+    _save();
     notifyListeners();
-    await _save();
   }
 
   Future<void> _save() async {

@@ -1,67 +1,145 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:liga_educa/models/competition_models.dart';
 
-/// Local sample data service (loads from JSON, will connect to database in the future).
+/// Real data service connecting to Education League API.
 class CompetitionsService {
   // Singleton instance
   static final CompetitionsService instance = CompetitionsService._();
   CompetitionsService._();
-  static const String _assetPath = 'assets/data/competitions.json';
-  static const String _teamsAssetPath = 'assets/data/teams.json';
-  static const String _matchesAssetPath = 'assets/data/matches.json';
+
+  static const String _baseUrl = 'https://www.educationleague.es/apis/education_league/';
+  static const Map<String, String> _headers = {
+    'X-Auth-Token': '#!t4//l1g43duc4@260310',
+    'Content-Type': 'application/json',
+  };
+
+  static const String _prefCompetitions = 'cache_competitions';
+  static const String _prefTeams = 'cache_teams';
+  static const String _prefMatches = 'cache_matches';
 
   List<CompetitionSummary>? _cache;
   Map<String, Map<String, String?>>? _teamImagesCache; // competitionId -> {teamName -> image}
   Map<String, Map<String, List<MatchResult>>>? _matchesCache;
 
+  Future<void> _loadTeams() async {
+    if (_teamImagesCache != null) return;
+    
+    // 1. Try to load from memory/cache
+    final prefs = await SharedPreferences.getInstance();
+    final cachedData = prefs.getString(_prefTeams);
+    if (cachedData != null) {
+      _parseTeamsData(jsonDecode(cachedData));
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl?section=teams'),
+        headers: _headers,
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        if (decoded['status'] == 200 && decoded['data'] is Map<String, dynamic>) {
+          await prefs.setString(_prefTeams, jsonEncode(decoded['data']));
+          _parseTeamsData(decoded['data']);
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load teams from API (offline?): $e');
+    }
+  }
+
+  void _parseTeamsData(Map<String, dynamic> data) {
+    _teamImagesCache = {};
+    data.forEach((compId, teams) {
+      if (teams is List) {
+        _teamImagesCache![compId] = {};
+        for (final t in teams) {
+          final name = t['name'] as String? ?? '';
+          final image = t['image'] as String?;
+          if (name.isNotEmpty) {
+            _teamImagesCache![compId]![name] = image;
+          }
+        }
+      }
+    });
+  }
 
   Future<void> _loadMatches() async {
     if (_matchesCache != null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final cachedData = prefs.getString(_prefMatches);
+    if (cachedData != null) {
+      _parseMatchesData(jsonDecode(cachedData));
+    }
+
     try {
-      final raw = await rootBundle.loadString(_matchesAssetPath);
-      final decoded = jsonDecode(raw);
-      if (decoded is Map<String, dynamic>) {
-        _matchesCache = {};
-        decoded.forEach((compId, matchdays) {
-          if (matchdays is Map<String, dynamic>) {
-            final dayMap = <String, List<MatchResult>>{};
-            matchdays.forEach((day, matches) {
-              if (matches is List) {
-                dayMap[day] = matches.map<MatchResult>((m) {
-                  final map = m as Map<String, dynamic>;
-                  return MatchResult(
-                    matchday: int.tryParse(day) ?? 0,
-                    home: MatchTeam(
-                        name: map['home'],
-                        short: _getShortName(map['home']),
-                        image: _getTeamImage(map['home'])),
-                    away: MatchTeam(
-                        name: map['away'],
-                        short: _getShortName(map['away']),
-                        image: _getTeamImage(map['away'])),
-                    homeGoals: (map['homeGoals'] as num?)?.toInt() ?? 0,
-                    awayGoals: (map['awayGoals'] as num?)?.toInt() ?? 0,
-                    status: map['status'] ?? '',
-                    statusValue: (map['statusValue'] as num?)?.toInt() ?? 0,
-                    dateTime: DateTime.tryParse(map['dateTime'] ?? '') ??
-                        DateTime.now(),
-                    stadium: map['stadium'],
-                    referee: map['referee'],
-                  );
-                }).toList();
-              }
-            });
-            _matchesCache![compId] = dayMap;
-          }
-        });
+      final response = await http.get(
+        Uri.parse('$_baseUrl?section=matches'),
+        headers: _headers,
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        if (decoded['status'] == 200 && decoded['data'] is Map<String, dynamic>) {
+          await prefs.setString(_prefMatches, jsonEncode(decoded['data']));
+          _parseMatchesData(decoded['data']);
+        }
       }
     } catch (e) {
-      debugPrint('Failed to load matches JSON: $e');
-      _matchesCache = {};
+      debugPrint('Failed to load matches from API (offline?): $e');
     }
+  }
+
+  void _parseMatchesData(Map<String, dynamic> data) {
+    _matchesCache = {};
+    data.forEach((compId, matchdays) {
+      if (matchdays is Map<String, dynamic>) {
+        final dayMap = <String, List<MatchResult>>{};
+        matchdays.forEach((day, matches) {
+          if (matches is List) {
+            dayMap[day] = matches.map<MatchResult>((m) {
+              final map = m as Map<String, dynamic>;
+              final statusStr = map['status'] as String? ?? '';
+              
+              int statusValue = 0;
+              if (statusStr == 'Finalizado') {
+                statusValue = 1;
+              } else if (statusStr == 'Suspendido') {
+                statusValue = 2;
+              } else if (statusStr == 'Aplazado') {
+                statusValue = 3;
+              }
+
+              return MatchResult(
+                matchday: int.tryParse(day) ?? 0,
+                home: MatchTeam(
+                    name: map['home'],
+                    short: _getShortName(map['home']),
+                    image: _getTeamImage(map['home'], compId)),
+                away: MatchTeam(
+                    name: map['away'],
+                    short: _getShortName(map['away']),
+                    image: _getTeamImage(map['away'], compId)),
+                homeGoals: (map['homeGoals'] as num?)?.toInt() ?? 0,
+                awayGoals: (map['awayGoals'] as num?)?.toInt() ?? 0,
+                status: statusStr,
+                statusValue: statusValue,
+                dateTime: DateTime.tryParse(map['dateTime'] ?? '') ??
+                    DateTime.now(),
+                stadium: map['stadium'],
+                referee: map['referee'],
+              );
+            }).toList();
+          }
+        });
+        _matchesCache![compId] = dayMap;
+      }
+    });
   }
 
   String _getShortName(String fullName) {
@@ -74,7 +152,8 @@ class CompetitionsService {
     if (fullName.contains('Roque')) return 'SRQ';
     if (fullName.contains('Esfubasa')) return 'ESF';
     if (fullName.contains('Huévar')) return 'HUE';
-    return fullName.substring(0, 3).toUpperCase();
+    if (fullName.length >= 3) return fullName.substring(0, 3).toUpperCase();
+    return fullName.toUpperCase();
   }
 
   String? _getTeamImage(String fullName, [String? competitionId]) {
@@ -108,8 +187,8 @@ class CompetitionsService {
     // Recorrer todos los partidos finalizados
     for (final matches in matchDays.values) {
       for (final match in matches) {
-        // Solo contar partidos finalizados (statusValue == 1)
-        if (match.statusValue != 1) continue;
+        // Solo contar partidos finalizados
+        if (match.status != 'Finalizado') continue;
 
         final homeName = match.home.name;
         final awayName = match.away.name;
@@ -231,54 +310,59 @@ class CompetitionsService {
   }
 
   Future<List<CompetitionSummary>> loadAll() async {
-    // Load team images (only name -> image mapping)
-    if (_teamImagesCache == null) {
-      try {
-        final rawTeams = await rootBundle.loadString(_teamsAssetPath);
-        final decodedTeams = jsonDecode(rawTeams);
-        if (decodedTeams is Map<String, dynamic>) {
-          _teamImagesCache = {};
-          decodedTeams.forEach((compId, value) {
-            if (value is List) {
-              _teamImagesCache![compId] = {};
-              for (final t in value) {
-                final name = t['name'] as String? ?? '';
-                final image = t['image'] as String?;
-                if (name.isNotEmpty) {
-                  _teamImagesCache![compId]![name] = image;
-                }
-              }
-            }
-          });
+    final prefs = await SharedPreferences.getInstance();
+    
+    // 1. Load competitions from cache first if memory is empty
+    if (_cache == null) {
+      final cachedComp = prefs.getString(_prefCompetitions);
+      if (cachedComp != null) {
+        try {
+          final List<dynamic> decoded = jsonDecode(cachedComp);
+          _cache = decoded
+              .whereType<Map<String, dynamic>>()
+              .map(CompetitionSummary.fromJson)
+              .toList(growable: false);
+        } catch (e) {
+          debugPrint('Error parsing cached competitions: $e');
         }
-      } catch (e) {
-        debugPrint('Failed to load teams JSON: $e');
-        _teamImagesCache = {};
       }
     }
 
-    // Load matches
+    // 2. Load teams and matches (they already have internal cache logic)
+    await _loadTeams();
     await _loadMatches();
 
-    if (_cache != null) return _cache!;
+    // 3. Try to update competitions from API
     try {
-      final raw = await rootBundle.loadString(_assetPath);
-      final decoded = jsonDecode(raw);
-      if (decoded is! List) return _cache = const [];
-      _cache = decoded
-          .whereType<Map<String, dynamic>>()
-          .map(CompetitionSummary.fromJson)
-          .toList(growable: false);
-      return _cache!;
+      final response = await http.get(
+        Uri.parse('$_baseUrl?section=competitions'),
+        headers: _headers,
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        if (decoded['status'] == 200 && decoded['data'] is List) {
+          final list = decoded['data'] as List;
+          
+          // Update cache in SharedPreferences
+          await prefs.setString(_prefCompetitions, jsonEncode(list));
+          
+          _cache = list
+              .whereType<Map<String, dynamic>>()
+              .map(CompetitionSummary.fromJson)
+              .toList(growable: false);
+          
+          return _cache!;
+        }
+      }
     } catch (e) {
-      debugPrint('Failed to load competitions JSON: $e');
-      return _cache = const [];
+      debugPrint('Failed to update competitions from API (using cache): $e');
     }
+
+    return _cache ?? const [];
   }
 
   List<CompetitionSummary> listCompetitions() {
-    // Return cached data if available, otherwise return empty list
-    // Call loadAll() first to ensure data is loaded
     return _cache ?? const [];
   }
 
@@ -335,7 +419,7 @@ class CompetitionsService {
         // Find the last matchday with at least one finished match
         for (final dayNum in matchdayNumbers.reversed) {
           final matches = days[dayNum.toString()] ?? [];
-          final hasFinished = matches.any((m) => m.statusValue == 1);
+          final hasFinished = matches.any((m) => m.status == 'Finalizado');
           if (hasFinished) {
             currentMatchday = dayNum;
             break;
@@ -377,6 +461,7 @@ class CompetitionsService {
       title: titleOverride ?? defaultTitle,
       subtitle: subtitleOverride ?? '',
       groupTitle: groupTitle,
+      seasonLabel: competition?.seasonLabel ?? '',
       currentMatchday: currentMatchday,
       maxMatchday: maxMatchday,
       results: currentMatches,
@@ -386,36 +471,23 @@ class CompetitionsService {
     );
   }
 
-  /// Calculates streak for all teams in a competition based on match history.
-  /// Returns a map of team name -> list of last 5 results.
-  /// Result codes: W (win), D (draw), L (loss), S (suspended), R (rest/bye)
   Map<String, List<String>> _calculateStreak(String competitionId, List<StandingRow> standings) {
     final Map<String, List<String>> result = {};
-
-    // Get all matches for this competition
     final matchDays = _matchesCache?[competitionId] ?? {};
     if (matchDays.isEmpty || standings.isEmpty) return result;
 
-    // Get all team names from standings
     final teamNames = standings.map((s) => s.team).toSet();
-
-    // Collect all matchdays sorted in descending order (most recent first)
     final sortedMatchdays = matchDays.keys
         .map((k) => int.tryParse(k) ?? 0)
         .where((d) => d > 0)
         .toList()
-      ..sort((a, b) => b.compareTo(a)); // Descending
+      ..sort((a, b) => b.compareTo(a));
 
-    // For each team, calculate their streak
     for (final teamName in teamNames) {
       final List<String> teamStreak = [];
-
       for (final matchday in sortedMatchdays) {
-        if (teamStreak.length >= 5) break; // Only last 5
-
+        if (teamStreak.length >= 5) break;
         final matches = matchDays[matchday.toString()] ?? [];
-
-        // Find if this team played in this matchday
         MatchResult? teamMatch;
         bool isHome = false;
 
@@ -432,78 +504,56 @@ class CompetitionsService {
         }
 
         if (teamMatch == null) {
-          // Team didn't play in this matchday - check if it's a rest/bye
-          // Only count as rest if at least one match was played that day
-          final hasFinishedMatches = matches.any((m) => m.statusValue == 1);
+          final hasFinishedMatches = matches.any((m) => 
+            m.statusValue == 1 || m.statusValue == 2 || m.statusValue == 3);
           if (hasFinishedMatches) {
-            teamStreak.add('R'); // Rest/Bye
+            teamStreak.add('R');
           }
         } else {
-          // Team had a match in this matchday
-          switch (teamMatch.statusValue) {
-            case 1: // Finished
-              final teamGoals = isHome ? teamMatch.homeGoals : teamMatch.awayGoals;
-              final opponentGoals = isHome ? teamMatch.awayGoals : teamMatch.homeGoals;
-              if (teamGoals > opponentGoals) {
-                teamStreak.add('W'); // Win
-              } else if (teamGoals < opponentGoals) {
-                teamStreak.add('L'); // Loss
-              } else {
-                teamStreak.add('D'); // Draw
-              }
-              break;
-            case 2: // Suspended
-              teamStreak.add('S'); // Suspended
-              break;
-            case 3: // Postponed
-              teamStreak.add('A'); // Postponed/Aplazado
-              break;
-            case 0: // Pending - don't count
-            default:
-              // Skip pending matches
-              break;
+          if (teamMatch.statusValue == 1) {
+            final teamGoals = isHome ? teamMatch.homeGoals : teamMatch.awayGoals;
+            final opponentGoals = isHome ? teamMatch.awayGoals : teamMatch.homeGoals;
+            if (teamGoals > opponentGoals) {
+              teamStreak.add('W');
+            } else if (teamGoals < opponentGoals) {
+              teamStreak.add('L');
+            } else {
+              teamStreak.add('D');
+            }
+          } else if (teamMatch.statusValue == 2) {
+            teamStreak.add('S'); // Suspended
+          } else if (teamMatch.statusValue == 3) {
+            teamStreak.add('A'); // Postponed
           }
         }
       }
-
-      // Reverse to show oldest to newest (left to right)
       result[teamName] = teamStreak.reversed.toList();
     }
-
     return result;
   }
 
   List<MatchResult> getMatches(String competitionId, int matchday) {
     if (_matchesCache == null) return [];
-    
-    // Try exact ID
     if (_matchesCache!.containsKey(competitionId)) {
       final days = _matchesCache![competitionId];
       if (days != null) {
         return days[matchday.toString()] ?? [];
       }
     }
-
     return [];
   }
 
   Map<String, List<MatchResult>> getAllMatchesGrouped(String competitionId) {
     if (_matchesCache == null) return {};
-
-    // Try exact ID
     if (_matchesCache!.containsKey(competitionId)) {
       return _matchesCache![competitionId] ?? {};
     }
-
     return {};
   }
 
-  /// Retrieves all matches (past and future) for a specific team in a competition.
   List<MatchResult> getTeamMatches(String competitionId, String teamName) {
     final List<MatchResult> teamMatches = [];
     final matchDays = _matchesCache?[competitionId] ?? {};
-    
-    // Sort matchday keys numerically
     final sortedKeys = matchDays.keys.toList()
       ..sort((a, b) => (int.tryParse(a) ?? 0).compareTo(int.tryParse(b) ?? 0));
 
@@ -515,22 +565,17 @@ class CompetitionsService {
         }
       }
     }
-    
     return teamMatches;
   }
 
-  /// Retrieves the coaching staff for a specific team.
   List<Coach> getTeamCoaches(String teamName) {
-    // Sample data for demo
     return [
       Coach(name: 'Francisco Javier Ruiz', role: 'Primer Entrenador'),
       Coach(name: 'Manuel García López', role: 'Segundo Entrenador'),
     ];
   }
 
-  /// Retrieves the players list for a specific team.
   List<Player> getTeamPlayers(String teamName) {
-    // Sample data for demo
     return [
       Player(name: 'Adrián González', number: '1', position: 'Portero'),
       Player(name: 'Daniel Sánchez', number: '4', position: 'Defensa'),
@@ -544,7 +589,6 @@ class CompetitionsService {
   }
 }
 
-/// Clase auxiliar para acumular estadísticas de equipo durante el cálculo
 class _TeamStats {
   int playedHome = 0;
   int playedAway = 0;

@@ -7,6 +7,7 @@ import 'package:liga_educa/theme.dart';
 import 'package:liga_educa/widgets/league_app_bar.dart';
 import 'package:liga_educa/widgets/league_card.dart';
 import 'package:liga_educa/widgets/sponsor_footer.dart';
+import 'package:liga_educa/widgets/team_logo.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
@@ -228,6 +229,8 @@ class _FavoriteTeamCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: LeagueCard(
+        backgroundColorOverride: AppBrandColors.navy800,
+        borderAlpha: 0.32,
         onTap: () {
           context.push(
             '${AppRoutes.teamDetail}?teamName=${Uri.encodeComponent(team.teamName)}&competitionId=${team.competitionId}${team.competitionTitle != null ? '&competitionTitle=${Uri.encodeComponent(team.competitionTitle!)}' : ''}',
@@ -236,31 +239,7 @@ class _FavoriteTeamCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            if (team.image != null)
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child: Image.asset(team.image!, fit: BoxFit.cover),
-                ),
-              )
-            else
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-                ),
-                child: Icon(Icons.shield, color: cs.onSurfaceVariant, size: 24),
-              ),
+            TeamLogo(image: team.image, size: 44),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -269,15 +248,14 @@ class _FavoriteTeamCard extends StatelessWidget {
                   Text(
                     team.teamName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
                           color: cs.onSurface,
+                          fontWeight: FontWeight.w700
                         ),
                   ),
                   Text(
                     team.competitionTitle ?? 'Liga Educa',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.7),
-                          fontWeight: FontWeight.w500,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
                         ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

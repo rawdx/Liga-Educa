@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:liga_educa/models/competition_models.dart';
 import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
+import 'package:liga_educa/widgets/team_logo.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MatchItem extends StatelessWidget {
@@ -32,12 +33,18 @@ class MatchItem extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final date = formatEs(match.dateTime);
 
+    final hh = match.dateTime.hour.toString().padLeft(2, '0');
+    final mm = match.dateTime.minute.toString().padLeft(2, '0');
+    final timeStr = '$hh:$mm';
+
     // Logic for Status Label and Color
     final (String statusLabel, Color statusColor) = switch (match.statusValue) {
       1 => ('FINAL', AppBrandColors.green),
       2 => ('SUSP.', const Color(0xFFEF4444)), // Red
       3 => ('APLAZ.', const Color(0xFFF59E0B)), // Amber
-      _ => (match.status.isNotEmpty ? match.status : '—:—', cs.onSurface.withValues(alpha: 0.85)),
+      _ => (match.status.isNotEmpty && match.status != '—:—' && match.status != 'Finalizado' 
+           ? match.status 
+           : timeStr, cs.onSurface.withValues(alpha: 0.85)),
     };
 
     // Only show score if the match is finished (statusValue == 1)
@@ -126,7 +133,7 @@ class MatchItem extends StatelessWidget {
             ),
           ),
           
-          if (match.stadium != null || match.referee != null) ...[
+          if ((match.stadium != null && match.stadium!.isNotEmpty) || (match.referee != null && match.referee!.isNotEmpty)) ...[
             const SizedBox(height: 14),
             Divider(
                 height: 1, color: AppBrandColors.gray600.withValues(alpha: 0.4)),
@@ -136,7 +143,7 @@ class MatchItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: InkWell(
-                    onTap: match.stadium != null
+                    onTap: (match.stadium != null && match.stadium!.isNotEmpty)
                         ? () {
                             final query = Uri.encodeComponent(match.stadium!);
                             launchUrl(Uri.parse(
@@ -151,14 +158,19 @@ class MatchItem extends StatelessWidget {
                             size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 6),
                         Expanded(
-                          child: Text(match.stadium ?? 'Por definir',
+                          child: Text(
+                              (match.stadium != null && match.stadium!.isNotEmpty)
+                                  ? match.stadium!
+                                  : 'Por definir',
                               style: Theme.of(context)
                                   .textTheme
                                   .labelMedium
                                   ?.copyWith(
-                                      color: match.stadium != null
+                                      color: (match.stadium != null && match.stadium!.isNotEmpty)
                                           ? AppBrandColors.green
-                                          : cs.onSurface.withValues(alpha: 0.85))),
+                                          : cs.onSurface.withValues(alpha: 0.7)),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ],
                     ),
@@ -170,12 +182,17 @@ class MatchItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Expanded(
-                        child: Text(match.referee ?? 'Por designar',
+                        child: Text(
+                            (match.referee != null && match.referee!.isNotEmpty)
+                                ? match.referee!
+                                : 'Por designar',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
                                 ?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
-                            textAlign: TextAlign.right),
+                            textAlign: TextAlign.end,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
                       ),
                       const SizedBox(width: 6),
                       Icon(Icons.sports, size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
@@ -199,34 +216,11 @@ class TeamAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: accent
-            ? AppBrandColors.greenDark.withValues(alpha: 0.35)
-            : AppBrandColors.gray700.withValues(alpha: 0.55),
-        border:
-            Border.all(color: AppBrandColors.gray600.withValues(alpha: 0.55)),
-      ),
-      alignment: Alignment.center,
-      child: (image != null && image!.isNotEmpty)
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(9),
-              child: Image.asset(image!,
-                  width: 34,
-                  height: 34,
-                  fit: BoxFit.cover, errorBuilder: (c, e, s) {
-                return Text(label,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface));
-              }))
-          : Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+    return TeamLogo(
+      image: image,
+      size: 34,
+      padding: 4,
+      borderRadius: 10,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:liga_educa/models/competition_models.dart';
 import 'package:liga_educa/nav.dart';
 import 'package:liga_educa/theme.dart';
+import 'package:liga_educa/widgets/team_logo.dart';
 
 /// Widget reutilizable para mostrar la tabla de clasificación.
 /// Soporta highlight de equipo y navegación a detalle de equipo.
@@ -32,6 +33,28 @@ class _StandingsViewState extends State<StandingsView> {
     final cs = Theme.of(context).colorScheme;
     const double rowHeight = 44.0;
     const double headerHeight = 32.0;
+
+    // Helper to calculate required width based on content
+    double calculateWidth(Iterable<String> values, String header) {
+      int maxChars = header.length;
+      for (final v in values) {
+        if (v.length > maxChars) maxChars = v.length;
+      }
+      
+      if (maxChars <= 2) return 36.0;
+      if (maxChars == 3) return 42.0;
+      return 48.0; // For 4+ chars like "-105"
+    }
+
+    // Dynamic widths for each column
+    final double ptsW = calculateWidth(widget.standings.map((r) => '${r.points}'), 'PTS');
+    final double pjW = calculateWidth(widget.standings.map((r) => '${r.played}'), 'PJ');
+    final double wonW = calculateWidth(widget.standings.map((r) => '${r.won}'), 'G');
+    final double drawnW = calculateWidth(widget.standings.map((r) => '${r.drawn}'), 'E');
+    final double lostW = calculateWidth(widget.standings.map((r) => '${r.lost}'), 'P');
+    final double gfW = calculateWidth(widget.standings.map((r) => '${r.gf}'), 'GF');
+    final double gaW = calculateWidth(widget.standings.map((r) => '${r.ga}'), 'GC');
+    final double dgW = calculateWidth(widget.standings.map((r) => '${r.gf - r.ga}'), 'DG');
 
     Widget buildCell(String text, double width,
         {bool bold = false, bool isHighlighted = false}) {
@@ -192,18 +215,13 @@ class _StandingsViewState extends State<StandingsView> {
                                     borderRadius: BorderRadius.circular(4),
                                     child: Row(
                                       children: [
-                                        if (r.image != null) ...[
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(6),
-                                            child: Image.asset(r.image!,
-                                                width: 20,
-                                                height: 20,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    const SizedBox.shrink()),
-                                          ),
-                                          const SizedBox(width: 8),
-                                        ],
+                                        TeamLogo(
+                                          image: r.image,
+                                          size: 24,
+                                          padding: 2,
+                                          borderRadius: 4,
+                                        ),
+                                        const SizedBox(width: 8),
                                         Expanded(
                                             child: Text(r.team,
                                                 style: Theme.of(context)
@@ -291,14 +309,14 @@ class _StandingsViewState extends State<StandingsView> {
                       children: [
                         Row(
                           children: [
-                            buildHeader('PTS', 40),
-                            buildHeader('PJ', 36),
-                            buildHeader('G', 36),
-                            buildHeader('E', 36),
-                            buildHeader('P', 36),
-                            buildHeader('GF', 36),
-                            buildHeader('GC', 36),
-                            buildHeader('DG', 36),
+                            buildHeader('PTS', ptsW),
+                            buildHeader('PJ', pjW),
+                            buildHeader('G', wonW),
+                            buildHeader('E', drawnW),
+                            buildHeader('P', lostW),
+                            buildHeader('GF', gfW),
+                            buildHeader('GC', gaW),
+                            buildHeader('DG', dgW),
                           ],
                         ),
                         ...widget.standings.asMap().entries.map((entry) {
@@ -309,21 +327,21 @@ class _StandingsViewState extends State<StandingsView> {
                             margin: const EdgeInsets.symmetric(vertical: 2),
                             child: Row(
                               children: [
-                                buildCell('${r.points}', 40,
+                                buildCell('${r.points}', ptsW,
                                     bold: true, isHighlighted: isHighlighted),
-                                buildCell('${r.played}', 36,
+                                buildCell('${r.played}', pjW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.won}', 36,
+                                buildCell('${r.won}', wonW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.drawn}', 36,
+                                buildCell('${r.drawn}', drawnW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.lost}', 36,
+                                buildCell('${r.lost}', lostW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.gf}', 36,
+                                buildCell('${r.gf}', gfW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.ga}', 36,
+                                buildCell('${r.ga}', gaW,
                                     isHighlighted: isHighlighted),
-                                buildCell('${r.gf - r.ga}', 36,
+                                buildCell('${r.gf - r.ga}', dgW,
                                     isHighlighted: isHighlighted),
                               ],
                             ),

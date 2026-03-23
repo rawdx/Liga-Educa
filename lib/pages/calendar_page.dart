@@ -179,7 +179,12 @@ class _CalendarPageState extends State<CalendarPage> {
             final isCurrent = day == currentMatchdayStr;
 
             // Determine matchday status
-            final bool allFinished = matches.isNotEmpty && matches.every((m) => m.statusValue == 1);
+            // A match is "done" for the purpose of the matchday status if it's finished (1), suspended (2) or postponed (3)
+            // or if it has a status string but no statusValue yet (some API cases)
+            final bool allFinished = matches.isNotEmpty && matches.every((m) => 
+              m.statusValue == 1 || m.statusValue == 2 || m.statusValue == 3 || 
+              (m.status.isNotEmpty && m.status != '—:—' && m.statusValue == 0)
+            );
             
             Widget statusBadge;
             if (allFinished) {

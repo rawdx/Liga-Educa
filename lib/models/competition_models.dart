@@ -13,21 +13,97 @@ class CompetitionSummary {
     required this.groupsCount,
   });
 
-  factory CompetitionSummary.fromJson(Map<String, dynamic> json) =>
-      CompetitionSummary(
-        id: (json['id'] ?? '').toString(),
-        category: (json['category'] ?? '').toString(),
-        seasonLabel: (json['seasonLabel'] ?? '').toString(),
-        groupLabel: (json['groupLabel'] ?? '').toString(),
-        groupsCount: (json['groupsCount'] ?? 0) as int,
-      );
+  factory CompetitionSummary.fromJson(Map<String, dynamic> json) {
+    return CompetitionSummary(
+      id: json['id']?.toString() ?? '',
+      category: json['category'] ?? '',
+      seasonLabel: json['seasonLabel'] ?? '',
+      groupLabel: json['groupLabel'] ?? '',
+      groupsCount: json['groupsCount'] ?? 0,
+    );
+  }
 }
 
-class MatchTeam {
-  final String name;
-  final String short;
+class CompetitionDetailData {
+  final String id;
+  final String title;
+  final String subtitle;
+  final String groupTitle;
+  final String seasonLabel;
+  final int currentMatchday;
+  final int maxMatchday;
+  final List<MatchResult> results;
+  final List<StandingRow> standings;
+  final List<MatchResult> nextMatchday;
+  final Map<String, List<String>> streak;
+
+  const CompetitionDetailData({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.groupTitle,
+    required this.seasonLabel,
+    required this.currentMatchday,
+    required this.maxMatchday,
+    required this.results,
+    required this.standings,
+    required this.nextMatchday,
+    required this.streak,
+  });
+}
+
+class StandingRow {
+  final int position;
+  final String team;
+  final String? teamId;
+  final int played;
+  final int points;
+  final int won;
+  final int drawn;
+  final int lost;
+  final int gf;
+  final int ga;
   final String? image;
-  const MatchTeam({required this.name, required this.short, this.image});
+
+  // Detailed stats
+  final int playedHome; // Added
+  final int playedAway; // Added
+  final int wonHome;
+  final int drawnHome;
+  final int lostHome;
+  final int gfHome;
+  final int gaHome;
+  final int wonAway;
+  final int drawnAway;
+  final int lostAway;
+  final int gfAway;
+  final int gaAway;
+
+  const StandingRow({
+    required this.position,
+    required this.team,
+    this.teamId,
+    required this.played,
+    required this.points,
+    required this.won,
+    required this.drawn,
+    required this.lost,
+    required this.gf,
+    required this.ga,
+    this.image,
+    this.playedHome = 0,
+    this.playedAway = 0,
+    this.wonHome = 0,
+    this.drawnHome = 0,
+    this.lostHome = 0,
+    this.gfHome = 0,
+    this.gaHome = 0,
+    this.wonAway = 0,
+    this.drawnAway = 0,
+    this.lostAway = 0,
+    this.gfAway = 0,
+    this.gaAway = 0,
+  });
 }
 
 class MatchResult {
@@ -37,7 +113,7 @@ class MatchResult {
   final int homeGoals;
   final int awayGoals;
   final String status;
-  final int statusValue; // 0: Pending, 1: Finished, 2: Suspended, 3: Postponed
+  final int statusValue; // 1: Finished, 0: Pending, 2: Suspended, 3: Postponed
   final DateTime dateTime;
   final String? stadium;
   final String? referee;
@@ -56,91 +132,30 @@ class MatchResult {
   });
 }
 
-class StandingRow {
-  final int position;
-  final String team;
-  final int played;
-  final int points;
-  final int won;
-  final int drawn;
-  final int lost;
-  final int gf;
-  final int ga;
+class MatchTeam {
+  final String name;
+  final String? id;
+  final String short;
   final String? image;
 
-  // Detailed stats for Casa/Fuera
-  final int wonHome;
-  final int drawnHome;
-  final int lostHome;
-  final int gfHome;
-  final int gaHome;
-  final int wonAway;
-  final int drawnAway;
-  final int lostAway;
-  final int gfAway;
-  final int gaAway;
-
-  const StandingRow({
-    required this.position,
-    required this.team,
-    required this.played,
-    required this.points,
-    this.won = 0,
-    this.drawn = 0,
-    this.lost = 0,
-    this.gf = 0,
-    this.ga = 0,
+  const MatchTeam({
+    required this.name,
+    this.id,
+    required this.short,
     this.image,
-    this.wonHome = 0,
-    this.drawnHome = 0,
-    this.lostHome = 0,
-    this.gfHome = 0,
-    this.gaHome = 0,
-    this.wonAway = 0,
-    this.drawnAway = 0,
-    this.lostAway = 0,
-    this.gfAway = 0,
-    this.gaAway = 0,
-  });
-
-  int get playedHome => wonHome + drawnHome + lostHome;
-  int get playedAway => wonAway + drawnAway + lostAway;
-}
-
-class CompetitionDetailData {
-  final String id;
-  final String title;
-  final String subtitle;
-  final String groupTitle;
-  final int currentMatchday;
-  final int maxMatchday;
-  final List<MatchResult> results;
-  final List<StandingRow> standings;
-  final List<MatchResult> nextMatchday;
-  final Map<String, List<String>> streak; // team -> last outcomes (W/D/L)
-
-  const CompetitionDetailData({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.groupTitle,
-    required this.currentMatchday,
-    required this.maxMatchday,
-    required this.results,
-    required this.standings,
-    required this.nextMatchday,
-    required this.streak,
   });
 }
 
 class FavoriteTeam {
   final String teamName;
+  final String? teamId;
   final String competitionId;
   final String? competitionTitle;
   final String? image;
 
   const FavoriteTeam({
     required this.teamName,
+    this.teamId,
     required this.competitionId,
     this.competitionTitle,
     this.image,
@@ -148,17 +163,21 @@ class FavoriteTeam {
 
   Map<String, dynamic> toJson() => {
         'teamName': teamName,
+        'teamId': teamId,
         'competitionId': competitionId,
         'competitionTitle': competitionTitle,
         'image': image,
       };
 
-  factory FavoriteTeam.fromJson(Map<String, dynamic> json) => FavoriteTeam(
-        teamName: json['teamName'],
-        competitionId: json['competitionId'],
-        competitionTitle: json['competitionTitle'],
-        image: json['image'],
-      );
+  factory FavoriteTeam.fromJson(Map<String, dynamic> json) {
+    return FavoriteTeam(
+      teamName: json['teamName'] ?? '',
+      teamId: json['teamId'],
+      competitionId: json['competitionId'] ?? '',
+      competitionTitle: json['competitionTitle'],
+      image: json['image'],
+    );
+  }
 }
 
 class Coach {
@@ -186,4 +205,3 @@ class Player {
     this.image,
   });
 }
-

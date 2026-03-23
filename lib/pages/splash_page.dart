@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liga_educa/nav.dart';
+import 'package:liga_educa/services/competitions_service.dart';
 import 'package:liga_educa/theme.dart';
 
 class SplashPage extends StatefulWidget {
@@ -13,21 +14,28 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 4), () {
-      if (!mounted) return;
-      context.go(AppRoutes.home);
-    });
+    _startLoading();
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<void> _startLoading() async {
+    final stopwatch = Stopwatch()..start();
+    
+    // Load all data from API
+    await CompetitionsService.instance.loadAll();
+    
+    stopwatch.stop();
+    
+    // Ensure splash is visible for at least 4 seconds
+    final remaining = 4000 - stopwatch.elapsedMilliseconds;
+    if (remaining > 0) {
+      await Future.delayed(Duration(milliseconds: remaining));
+    }
+
+    if (!mounted) return;
+    context.go(AppRoutes.home);
   }
 
   @override

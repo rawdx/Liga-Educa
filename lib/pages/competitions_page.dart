@@ -20,14 +20,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); // Added GlobalKey
   final _service = CompetitionsService.instance;
 
-  final Map<String, bool> _expandedCategories = {
-    'Minis': false,
-    'Prebenjamines': false,
-    'Benjamines': false,
-    'Alevines': false,
-    'Infantiles': false,
-  };
-
+  final Map<String, bool> _expandedCategories = {};
   final Map<String, bool> _expandedSeasons = {};
 
   // Memoized grouped competitions data
@@ -41,11 +34,21 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
   }
 
   Future<void> _initializeCompetitions() async {
-    await _service.loadAll();
+    // Data should be already preloaded by SplashPage
     final all = _service.listCompetitions();
+    
+    // If for some reason cache is empty, try loading once
+    if (all.isEmpty) {
+      await _service.loadAll();
+    }
+    
+    final allLoaded = _service.listCompetitions();
     _groupedCompetitions = <String, List<CompetitionSummary>>{};
-    for (final c in all) {
+    for (final c in allLoaded) {
       _groupedCompetitions!.putIfAbsent(c.category, () => []).add(c);
+      if (!_expandedCategories.containsKey(c.category)) {
+        _expandedCategories[c.category] = false;
+      }
     }
     if (mounted) {
       setState(() {});
@@ -334,7 +337,10 @@ class _CategoryAccordion extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
-                                ?.copyWith(color: cs.onSurface)),
+                                ?.copyWith(
+                                  color: cs.onSurface,
+                                  fontWeight: FontWeight.w700,
+                                )),
                         const SizedBox(height: 2),
                         Text(groupsCount > 0 ? '$groupsCount grupos' : '—',
                             style: Theme.of(context)
